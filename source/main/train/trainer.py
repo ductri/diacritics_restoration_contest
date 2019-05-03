@@ -15,10 +15,10 @@ from model_def.baseline import Baseline
 
 class MyTrainingChecker(TrainingChecker):
     def __init__(self, model, dir_checkpoint, init_score):
-        super(MyTrainingChecker, self).__init__(model, dir_checkpoint, init_score)
+        super(MyTrainingChecker, self).__init__(model, dir_checkpoint + '/' + self._model.__class__.__name__, init_score)
 
     def save_model(self):
-        file_name = os.path.join(self._dir_checkpoint, '%s_%s.pt' % (self._model.__class__.__name__, self._step))
+        file_name = os.path.join(self._dir_checkpoint, '%s.pt' % (self._step))
         torch.save({
             'model_state_dict': self._model.state_dict(),
             'optimizer': self._model.optimizer.state_dict()}, file_name)
@@ -117,8 +117,8 @@ def train(model, train_loader, eval_loader, dir_checkpoint, device, num_epoch=10
                     s_acc = cal_sen_acc(prediction_numpy, target_numpy, seq_len_numpy)
 
                     logging.info(
-                        'Step: %s \t L_mean: %.5f \t L_median: %.5f \t w_a: %.4f \t s_a: %.4f \t Duration: %.3f s/step' % (
-                            step, t_loss_tracking.mean(), t_loss_tracking.median(), w_acc, s_acc, time.time() - start))
+                        'Step: %s \t L_mean: %.5f \t L_std: %.5f \t w_a: %.4f \t s_a: %.4f \t Duration: %.3f s/step' % (
+                            step, t_loss_tracking.mean(), np.std(t_loss_tracking.figures), w_acc, s_acc, time.time() - start))
                     t_loss_tracking.reset()
 
                 if step % predict_every == 0:
@@ -149,8 +149,8 @@ def train(model, train_loader, eval_loader, dir_checkpoint, device, num_epoch=10
                     logging.info('\n\n------------------ \tEvaluation\t------------------')
                     logging.info('Step: %s', step)
                     logging.info('Number of batchs: %s', e_loss_tracking.get_count())
-                    logging.info('L_mean: %.5f \t L_median: %.5f \t  w_a: %.5f \t s_a: %.5f \t Duration: %.3f s/step' %
-                                 (e_loss_tracking.mean(), e_loss_tracking.median(), e_w_a_tracking.mean(),
+                    logging.info('L_mean: %.5f \t L_std: %.5f \t  w_a: %.5f \t s_a: %.5f \t Duration: %.3f s/step' %
+                                 (e_loss_tracking.mean(), np.std(e_loss_tracking.figures), e_w_a_tracking.mean(),
                                   e_s_a_tracking.mean(), time.time() - start))
 
                     training_checker.update(e_w_a_tracking.mean(), step)
