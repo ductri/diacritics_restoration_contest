@@ -15,10 +15,10 @@ from model_def.baseline import Baseline
 
 class MyTrainingChecker(TrainingChecker):
     def __init__(self, model, dir_checkpoint, init_score):
-        super(MyTrainingChecker, self).__init__(model, dir_checkpoint + '/' + self._model.__class__.__name__, init_score)
+        super(MyTrainingChecker, self).__init__(model, dir_checkpoint + '/' + model.__class__.__name__, init_score)
 
     def save_model(self):
-        file_name = os.path.join(self._dir_checkpoint, '%s.pt' % (self._step))
+        file_name = os.path.join(self._dir_checkpoint, '%s.pt' % self._step)
         torch.save({
             'model_state_dict': self._model.state_dict(),
             'optimizer': self._model.optimizer.state_dict()}, file_name)

@@ -12,6 +12,7 @@ class MyDataset(Dataset):
     def __init__(self, path_to_file, voc_src, voc_tgt, max_word_len, size=None):
         super(MyDataset, self).__init__()
         df = pd.read_csv(path_to_file)
+        df.dropna(inplace=True)
         if size is None:
             start_idx = 0
         else:
