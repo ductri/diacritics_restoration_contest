@@ -55,7 +55,7 @@ def bootstrap():
     logging.info('Tgt vocab contains %s tokens', len(voc_tgt.index2word))
 
 
-def create_data_loader(path_to_csv, batch_size, num_workers, size=None):
+def create_data_loader(path_to_csv, batch_size, num_workers, size=None, shuffle=True):
     def collate_fn(list_data):
         """
         shape == (batch_size, col1, col2, ...)
@@ -67,7 +67,7 @@ def create_data_loader(path_to_csv, batch_size, num_workers, size=None):
 
     my_dataset = MyDataset(path_to_csv, voc_src, voc_tgt, MAX_LENGTH, size=size)
     logging.info('Data at %s contains %s samples', path_to_csv, len(my_dataset))
-    dl = DataLoader(dataset=my_dataset, batch_size=batch_size, shuffle=True, num_workers=num_workers, collate_fn=collate_fn)
+    dl = DataLoader(dataset=my_dataset, batch_size=batch_size, shuffle=shuffle, num_workers=num_workers, collate_fn=collate_fn)
     return dl
 
 
@@ -76,11 +76,11 @@ def get_dl_train(batch_size, size=None):
 
 
 def get_dl_test(batch_size):
-    return create_data_loader(ROOT + 'main/data_for_train/output/my_test.csv', batch_size, NUM_WORKERS)
+    return create_data_loader(ROOT + 'main/data_for_train/output/my_test.csv', batch_size, NUM_WORKERS, shuffle=False)
 
 
 def get_dl_eval(batch_size):
-    return create_data_loader(ROOT + 'main/data_for_train/output/my_eval.csv', batch_size, NUM_WORKERS)
+    return create_data_loader(ROOT + 'main/data_for_train/output/my_eval.csv', batch_size, NUM_WORKERS, shuffle=False)
 
 
 voc_src = None

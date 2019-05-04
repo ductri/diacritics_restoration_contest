@@ -11,6 +11,7 @@ from utils import pytorch_utils, metrics
 from utils.training_checker import TrainingChecker
 from data_for_train import my_dataset
 from model_def.baseline import Baseline
+from model_def.simple_but_huge import SimpleButHuge
 
 
 class MyTrainingChecker(TrainingChecker):
@@ -117,8 +118,9 @@ def train(model, train_loader, eval_loader, dir_checkpoint, device, num_epoch=10
                     s_acc = cal_sen_acc(prediction_numpy, target_numpy, seq_len_numpy)
 
                     logging.info(
-                        'Step: %s \t L_mean: %.5f \t L_std: %.5f \t w_a: %.4f \t s_a: %.4f \t Duration: %.3f s/step' % (
-                            step, t_loss_tracking.mean(), np.std(t_loss_tracking.figures), w_acc, s_acc, time.time() - start))
+                        'Step: %s \t L_mean: %.4f±%.4f \t w_a: %.4f \t s_a: %.4f \t Duration: %.4f s/step' % (
+                            step, t_loss_tracking.mean(), float(np.std(t_loss_tracking.figures)),
+                            w_acc, s_acc, time.time() - start))
                     t_loss_tracking.reset()
 
                 if step % predict_every == 0:
@@ -149,9 +151,11 @@ def train(model, train_loader, eval_loader, dir_checkpoint, device, num_epoch=10
                     logging.info('\n\n------------------ \tEvaluation\t------------------')
                     logging.info('Step: %s', step)
                     logging.info('Number of batchs: %s', e_loss_tracking.get_count())
-                    logging.info('L_mean: %.5f \t L_std: %.5f \t  w_a: %.5f \t s_a: %.5f \t Duration: %.3f s/step' %
-                                 (e_loss_tracking.mean(), np.std(e_loss_tracking.figures), e_w_a_tracking.mean(),
-                                  e_s_a_tracking.mean(), time.time() - start))
+                    logging.info('L_mean: %.4f±%.4f(%.4f) \t  w_a: %.4f±%.4f \t s_a: %.4f±%.4f \t Duration: %.4f s/step' %
+                                 (e_loss_tracking.mean(), float(np.std(e_loss_tracking.figures)), float(np.median(e_loss_tracking.figures)),
+                                  e_w_a_tracking.mean(), float(np.std(e_w_a_tracking.figures)),
+                                  e_s_a_tracking.mean(), float(np.std(e_s_a_tracking.figures)),
+                                  time.time() - start))
 
                     training_checker.update(e_w_a_tracking.mean(), step)
                     best_score, best_score_step = training_checker.best()
@@ -188,14 +192,16 @@ if __name__ == '__main__':
     NUM_EPOCHS = 500
     NUM_WORKERS = 0
     PRINT_EVERY = 200
-    EVAL_EVERY = 5000
+    EVAL_EVERY = 10000
     PRE_TRAINED_MODEL = ''
 
     my_dataset.bootstrap()
-    train_loader = my_dataset.get_dl_train(batch_size=BATCH_SIZE, size=100)
+    train_loader = my_dataset.get_dl_train(batch_size=BATCH_SIZE)
     eval_loader = my_dataset.get_dl_eval(batch_size=BATCH_SIZE)
 
-    model = Baseline(src_word_vocab_size=len(my_dataset.voc_src.index2word),
+    # model = Baseline(src_word_vocab_size=len(my_dataset.voc_src.index2word),
+    #                  tgt_word_vocab_size=len(my_dataset.voc_tgt.index2word))
+    model = SimpleButHuge(src_word_vocab_size=len(my_dataset.voc_src.index2word),
                      tgt_word_vocab_size=len(my_dataset.voc_tgt.index2word))
 
     logging.info('Model architecture: \n%s', model)
@@ -211,6 +217,7 @@ if __name__ == '__main__':
         model.optimizer.load_state_dict(checkpoint['optimizer'])
         logging.info('Load pre-trained model from %s successfully', PRE_TRAINED_MODEL)
 
-    train(model, train_loader, eval_loader, dir_checkpoint='main/train/output/saved_models/', device=device,
+    train(model, train_loader, eval_loader, dir_checkpoint='/source/main/train/output/saved_models/', device=device,
           num_epoch=NUM_EPOCHS, print_every=PRINT_EVERY, predict_every=EVAL_EVERY, eval_every=EVAL_EVERY,
           input_transform=input2_text, output_transform=target2_text)
+
