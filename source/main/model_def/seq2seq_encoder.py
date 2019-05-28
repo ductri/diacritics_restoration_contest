@@ -35,7 +35,7 @@ class Encoder(nn.Module):
 
         output, (h_n, c_n) = self.lstm(word_embed_permuted)
 
-        return h_n, c_n
+        return h_n, c_n, output
 
 
 class FlattenHiddenLSTM(nn.Module):

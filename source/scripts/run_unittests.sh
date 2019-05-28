@@ -9,6 +9,7 @@ find main/ -type f -name *_test.py  |
 while read filename
 do
     echo 'Testing for: ' $(basename "$filename")
-    python -m unittest discover -s ./ -p $(basename "$filename")
+    echo "$filename"
+    python "$filename"
 done
 echo "Done unit tests."

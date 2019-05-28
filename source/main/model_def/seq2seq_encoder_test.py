@@ -12,7 +12,7 @@ class TestEncoder(unittest.TestCase):
         batch_size = docs.size(0)
 
         encoder = Encoder(vocab_size=5)
-        h_n, c_n = encoder(docs)
+        h_n, c_n, _ = encoder(docs)
 
         self.assertEqual(h_n.shape, (6, batch_size, 512))
         self.assertEqual(c_n.shape, (6, batch_size, 512))

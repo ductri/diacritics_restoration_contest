@@ -145,10 +145,10 @@ def train(model, train_loader, eval_loader, dir_checkpoint, device, num_epoch=10
                     logging.info('\n\n------------------ \tEvaluation\t------------------')
                     logging.info('Step: %s', step)
                     logging.info('Number of batchs: %s', e_w_a_tracking.get_count())
-                    logging.info('w_a: %.4f±%.4f \t s_a: %.4f±%.4f \t Duration: %.4f s/step' %
-                                  e_w_a_tracking.mean(), float(np.std(e_w_a_tracking.figures)),
-                                  e_s_a_tracking.mean(), float(np.std(e_s_a_tracking.figures)),
-                                  time.time() - start)
+                    logging.info('w_a: %.4f±%.4f \t s_a: %.4f±%.4f \t Duration: %.4f s/step',
+                                 e_w_a_tracking.mean(), float(np.std(e_w_a_tracking.figures)),
+                                 e_s_a_tracking.mean(), float(np.std(e_s_a_tracking.figures)),
+                                 time.time() - start)
 
                     training_checker.update(e_w_a_tracking.mean(), step)
                     best_score, best_score_step = training_checker.best()

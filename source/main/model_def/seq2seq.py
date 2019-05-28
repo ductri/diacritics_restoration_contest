@@ -35,7 +35,7 @@ class Seq2Seq(nn.Module):
         :param input:
         :return:
         """
-        h_n, c_n = self.encoder(word_input)
+        h_n, c_n, _ = self.encoder(word_input)
         h_n, c_n = self.flatten_hidden_lstm(h_n, c_n)
         output = self.greedy_infer(h_n, c_n, self.__start_idx_int)
         return output
@@ -55,7 +55,7 @@ class Seq2Seq(nn.Module):
         :param length: shape == (batch_size)
         :return:
         """
-        enc_h_n, enc_c_n = self.encoder(word_input)
+        enc_h_n, enc_c_n, _ = self.encoder(word_input)
         enc_h_n, enc_c_n = self.flatten_hidden_lstm(enc_h_n, enc_c_n)
         batch_size = enc_h_n.size(1)
 
