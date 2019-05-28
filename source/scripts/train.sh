@@ -1,2 +1,2 @@
 export PYTHONPATH=`pwd`/main
-python main/train/trainer.py
+python main/train/run_trainer.py

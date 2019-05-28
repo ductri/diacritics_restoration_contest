@@ -9,6 +9,16 @@ from utils import pytorch_utils
 
 MAX_LEN = 400
 
+"""
+diacritics_19-05-04_03_40_28
+------------------ 	Evaluation	------------------
+INFO:root:Step: 1320000
+INFO:root:Number of batchs: 157
+INFO:root:L_mean: 13362815.6725±114847554.0418(8.0722) 	  w_a: 0.9791±0.0053 	 s_a: 0.4656±0.0885 	 Duration: 6.1710 s/step
+INFO:root:Current best score: 0.9800801243230254 recorded at step 470000
+
+"""
+
 
 class SimpleButHuge(nn.Module):
     def __init__(self, src_word_vocab_size, tgt_word_vocab_size):

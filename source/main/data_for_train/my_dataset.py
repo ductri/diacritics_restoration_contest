@@ -42,7 +42,7 @@ class MyDataset(Dataset):
 
 def bootstrap():
     global voc_src
-    global voc_tgt
+    global voc
     voc_src = Voc.load(ROOT + 'main/vocab/output/src.json', name='src')
     voc_src.tokenize_func = str.split
     voc_src.space_char = ' '
@@ -65,7 +65,7 @@ def create_data_loader(path_to_csv, batch_size, num_workers, size=None, shuffle=
         data = [torch.from_numpy(col) for col in data]
         return data
 
-    my_dataset = MyDataset(path_to_csv, voc_src, voc_tgt, MAX_LENGTH, size=size)
+    my_dataset = MyDataset(path_to_csv, voc_src, voc, MAX_LENGTH, size=size)
     logging.info('Data at %s contains %s samples', path_to_csv, len(my_dataset))
     dl = DataLoader(dataset=my_dataset, batch_size=batch_size, shuffle=shuffle, num_workers=num_workers, collate_fn=collate_fn)
     return dl
@@ -84,7 +84,7 @@ def get_dl_eval(batch_size):
 
 
 voc_src = None
-voc_tgt = None
+voc = None
 MAX_LENGTH = 100
 NUM_WORKERS = 0
 ROOT = '/source/'

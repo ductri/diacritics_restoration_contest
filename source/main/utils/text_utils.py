@@ -129,7 +129,7 @@ def process_line(line):
     :param line:
     :return: no_tone_line, no_tone_words, simplified_words
     """
-    utf8_line = line.encode('utf-8')
+    utf8_line = line
     utf8_line = utf8_line.strip('\n')
 
     no_tone_line_pre = remove_tone_line(utf8_line)

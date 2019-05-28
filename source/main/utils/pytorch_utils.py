@@ -1,3 +1,5 @@
+import logging
+
 import numpy as np
 import torch
 
@@ -5,6 +7,14 @@ import torch
 def count_parameters(model):
     weight_sizes = [np.prod(param.size()) for param in model.parameters()]
     return sum(weight_sizes)
+
+
+def show_detail_parameters(model):
+    params = [(n, np.prod(v.size())) for n, v in model.named_parameters()]
+    out = ['Param: %s contributes %s weights' % (n, c) for n, c in params]
+    out.append('Total: %s' % sum([c for n, c in params]))
+    out = '\n'.join(out)
+    logging.info(out)
 
 
 def length_to_mask(length, max_len=None, dtype=None):
