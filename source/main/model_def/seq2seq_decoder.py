@@ -1,6 +1,8 @@
 import torch
 from torch import nn
 
+from model_def.attention import Attention
+
 
 class DecoderGreedyInfer(nn.Module):
 
@@ -33,7 +35,7 @@ class DecoderGreedyInfer(nn.Module):
             h_n, c_n = (enc_h_n, enc_c_n)
             for step in range(self.max_length):
                 # shape == (1, batch_size, vocab_size)
-                output, (h_n, c_n) = self.core_decoder(current_word, (h_n, c_n))
+                output, (h_n, c_n) = self.core_decoder(current_word, (h_n, c_n), *args)
 
                 # import pdb; pdb.set_trace()
 
@@ -65,7 +67,7 @@ class RawDecoder(nn.Module):
 
     def forward(self, inputs_idx, h_n_c_n, *args):
         """
-
+        Can input in 2 flavors: step by step, or whole sequence
         :param inputs_idx: shape == (max_length, batch_size)
         :param h_n_c_n: tuple of (h_n, c_n) from LSTM. Each has size of (num_layers * num_directions, batch, hidden_size)
         :param args:
@@ -75,7 +77,57 @@ class RawDecoder(nn.Module):
         # shape == (max_length, batch_size, hidden_size)
         embedding_input = self.embedding(inputs_idx)
         # output shape == (max_length, batch, num_directions * hidden_size)
-        output, (h_n, c_n) = self.lstm(embedding_input, h_n_c_n)
-        output = self.dropout(output)
-        output = self.output_mapping(output)
-        return output, (h_n, c_n)
+        outputs, (h_n, c_n) = self.lstm(embedding_input, h_n_c_n)
+        outputs = self.dropout(outputs)
+        outputs = self.output_mapping(outputs)
+        return outputs, (h_n, c_n)
+
+
+class AttnRawDecoder(nn.Module):
+    def __init__(self, vocab_size, enc_output_size):
+        """
+        WARNING NotImplement input feeding
+        Common use for both Training and Inference
+        :param vocab_size:
+        """
+        super(AttnRawDecoder, self).__init__()
+        self.embedding_size = 256
+        self.lstm_size = 512
+        self.lstm_num_layer = 3
+        self.dropout_rate = 0.3
+        self.half_window_size = 2
+
+        self.embedding = nn.Embedding(num_embeddings=vocab_size, embedding_dim=self.embedding_size)
+        self.lstm = nn.LSTM(input_size=self.embedding_size, hidden_size=self.lstm_size, num_layers=self.lstm_num_layer,
+                            bidirectional=False, dropout=self.dropout_rate)
+        self.attention = Attention(enc_output_size=enc_output_size, dec_output_size=self.lstm_size)
+        self.output_mapping = nn.Linear(self.lstm_size+enc_output_size, vocab_size)
+        self.dropout = nn.Dropout(p=self.dropout_rate)
+
+    def forward(self, inputs_idx, h_n_c_n, enc_outputs, *args):
+        """
+        Implemented by running step by step
+        :param inputs_idx: shape == (seq_len, batch_size)
+        :param h_n_c_n: tuple of (h_n, c_n) from LSTM. Each has size of (num_layers * num_directions, batch, hidden_size)
+        :param enc_outputs: shape == (seq_len, batch, hidden_size)
+        :param args:
+        :return: output shape == (seq_len, batch, vocab_size)
+        """
+
+        # shape == (seq_len, batch_size, hidden_size)
+        embedding_input = self.embedding(inputs_idx)
+
+        outputs = []
+        for step in range(inputs_idx.size(0)):
+            inputs_idx_step = embedding_input[step: step + 1]
+            output_, h_n_c_n = self.lstm(inputs_idx_step, h_n_c_n)
+            output_ = output_[0]
+            output_, _ = self.attention(enc_outputs[max(0, step-self.half_window_size):step+self.half_window_size], output_)
+            output_ = output_.view(1, *output_.size())
+            outputs.append(output_)
+
+        # output shape == (seq_len, batch, size)
+        outputs = torch.cat(tuple(outputs), dim=0)
+        outputs = self.dropout(outputs)
+        outputs = self.output_mapping(outputs)
+        return outputs, h_n_c_n
