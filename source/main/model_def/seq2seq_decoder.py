@@ -35,9 +35,8 @@ class DecoderGreedyInfer(nn.Module):
             h_n, c_n = (enc_h_n, enc_c_n)
             for step in range(self.max_length):
                 # shape == (1, batch_size, vocab_size)
+                args = args + (step,)
                 output, (h_n, c_n) = self.core_decoder(current_word, (h_n, c_n), *args)
-
-                # import pdb; pdb.set_trace()
 
                 # shape == (1, batch_size)
                 current_word = torch.argmax(output, dim=2)
@@ -104,30 +103,38 @@ class AttnRawDecoder(nn.Module):
         self.output_mapping = nn.Linear(self.lstm_size+enc_output_size, vocab_size)
         self.dropout = nn.Dropout(p=self.dropout_rate)
 
-    def forward(self, inputs_idx, h_n_c_n, enc_outputs, *args):
+    def forward(self, inputs_idx, h_n_c_n, enc_outputs, step, *args):
         """
         Implemented by running step by step
         :param inputs_idx: shape == (seq_len, batch_size)
         :param h_n_c_n: tuple of (h_n, c_n) from LSTM. Each has size of (num_layers * num_directions, batch, hidden_size)
         :param enc_outputs: shape == (seq_len, batch, hidden_size)
+        :param step:
         :param args:
         :return: output shape == (seq_len, batch, vocab_size)
         """
-
         # shape == (seq_len, batch_size, hidden_size)
         embedding_input = self.embedding(inputs_idx)
 
-        outputs = []
-        for step in range(inputs_idx.size(0)):
-            inputs_idx_step = embedding_input[step: step + 1]
+        if step is None:
+            outputs = []
+            for step in range(inputs_idx.size(0)):
+                inputs_idx_step = embedding_input[step: step + 1]
+                output_, h_n_c_n = self.lstm(inputs_idx_step, h_n_c_n)
+                output_ = output_[0]
+                local_enc_outputs = enc_outputs[max(0, step - self.half_window_size):step + self.half_window_size]
+                output_, _ = self.attention(local_enc_outputs, output_)
+                output_ = output_.view(1, *output_.size())
+                outputs.append(output_)
+            # output shape == (seq_len, batch, size)
+            outputs = torch.cat(tuple(outputs), dim=0)
+        else:
+            inputs_idx_step = embedding_input
             output_, h_n_c_n = self.lstm(inputs_idx_step, h_n_c_n)
             output_ = output_[0]
-            output_, _ = self.attention(enc_outputs[max(0, step-self.half_window_size):step+self.half_window_size], output_)
-            output_ = output_.view(1, *output_.size())
-            outputs.append(output_)
-
-        # output shape == (seq_len, batch, size)
-        outputs = torch.cat(tuple(outputs), dim=0)
+            local_enc_outputs = enc_outputs[max(0, step - self.half_window_size):step + self.half_window_size]
+            output_, _ = self.attention(local_enc_outputs, output_)
+            outputs = output_.view(1, *output_.size())
         outputs = self.dropout(outputs)
         outputs = self.output_mapping(outputs)
         return outputs, h_n_c_n

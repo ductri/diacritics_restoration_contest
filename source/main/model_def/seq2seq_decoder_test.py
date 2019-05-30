@@ -80,7 +80,7 @@ class TestDecoder(unittest.TestCase):
         h_n = torch.rand(3, batch_size, 512)
         c_n = torch.rand(3, batch_size, 512)
 
-        outputs, _ = decoder(inputs_idx, (h_n, c_n), enc_outputs)
+        outputs, _ = decoder(inputs_idx, (h_n, c_n), enc_outputs, None)
 
         self.assertEqual(outputs.size(), (seq_len, batch_size, vocab_size))
 
@@ -97,9 +97,41 @@ class TestDecoder(unittest.TestCase):
         h_n = torch.rand(3, batch_size, 512)
         c_n = torch.rand(3, batch_size, 512)
         enc_outputs = torch.randn(seq_len, batch_size, enc_output_size)
-
         outputs = decoder(h_n, c_n, enc_outputs)
         self.assertEqual(outputs.size(), (batch_size, max_length))
+
+    def test_attn_decoder_run_by_step(self):
+        vocab_size = 5
+        batch_size = 2
+        max_length = 10
+        seq_len = 13
+        enc_lstm_size = 512
+        enc_output_size = enc_lstm_size*2
+
+        decoder = AttnRawDecoder(vocab_size=vocab_size, enc_output_size=enc_output_size)
+        decoder.eval()
+        with torch.no_grad():
+            inputs_idx = torch.randint(vocab_size, size=(max_length, batch_size))
+            h_n = torch.rand(3, batch_size, enc_lstm_size)
+            c_n = torch.rand(3, batch_size, enc_lstm_size)
+            enc_outputs = torch.randn(seq_len, batch_size, enc_output_size)
+
+            outputs1, (h1, c1) = decoder(inputs_idx, (h_n, c_n), enc_outputs, None)
+
+            h2, c2 = h_n, c_n
+            outputs2 = []
+            for step in range(inputs_idx.size(0)):
+                inputs_idx_step = inputs_idx[step: step+1]
+                output_, (h2, c2) = decoder(inputs_idx_step, (h2, c2), enc_outputs, step)
+                outputs2.append(output_)
+            outputs2 = torch.cat(outputs2, dim=0)
+
+            outputs1 = outputs1.numpy()
+            outputs2 = outputs2.numpy()
+
+            self.assertAlmostEqual(np.sum(np.abs((outputs1 - outputs2))), 0, places=5)
+            self.assertAlmostEqual(np.sum(np.abs((h1.numpy() - h2.numpy()))), 0, places=5)
+            self.assertAlmostEqual(np.sum(np.abs((c1.numpy() - c2.numpy()))), 0, places=5)
 
 
 if __name__ == '__main__':

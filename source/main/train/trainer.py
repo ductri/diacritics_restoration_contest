@@ -22,7 +22,8 @@ class MyTrainingChecker(TrainingChecker):
         torch.save({
             'model_state_dict': self._model.state_dict(),
             'optimizer': self._model.optimizer.state_dict(),
-            'step': self._step
+            'step': self._step,
+            'best_score': self._score
         }, file_name)
 
 

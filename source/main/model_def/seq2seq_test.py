@@ -27,7 +27,7 @@ class TestSeq2Seq(unittest.TestCase):
         inputs_idx = torch.randint(low=0, high=src_vocab_size-2, size=(batch_size, max_length)).to(self.device)
         target_idx = inputs_idx.clone()
         # length = torch.randint(low=1, high=1, size=(batch_size, )).to(self.device)
-        length = torch.mul(torch.ones(batch_size), 2).to(self.device)
+        length = torch.mul(torch.ones(batch_size), 5).to(self.device)
 
         model = Seq2Seq(src_vocab_size=src_vocab_size, tgt_vocab_size=tgt_vocab_size, start_idx=5, end_idx=end_idx)
         model.train()

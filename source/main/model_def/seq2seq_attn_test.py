@@ -26,14 +26,13 @@ class TestSeq2SeqAttn(unittest.TestCase):
         end_idx = 6
         inputs_idx = torch.randint(low=0, high=src_vocab_size-2, size=(batch_size, max_length)).to(self.device)
         target_idx = inputs_idx.clone()
-        # length = torch.randint(low=1, high=1, size=(batch_size, )).to(self.device)
-        length = torch.mul(torch.ones(batch_size), 2).to(self.device)
+        length = torch.mul(torch.ones(batch_size), 5).to(self.device)
 
         model = Seq2SeqAttn(src_vocab_size=src_vocab_size, tgt_vocab_size=tgt_vocab_size, start_idx=5, end_idx=end_idx)
         model.train()
         model.to(self.device)
         model.lr_rate = 1e-3
-        for step in range(50):
+        for step in range(100):
             model.train()
             loss = model.train_batch(inputs_idx, target_idx, length)
             print('Step: %s - Loss: %.4f' % (step, loss))

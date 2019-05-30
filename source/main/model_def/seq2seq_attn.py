@@ -68,7 +68,7 @@ class Seq2SeqAttn(nn.Module):
         dec_input = dec_input.permute(1, 0)
 
         # shape == (max_len+1, batch_size, tgt_vocab_size)
-        predict, _ = self.core_decoder(dec_input, (enc_h_n, enc_c_n), enc_outputs)
+        predict, _ = self.core_decoder(dec_input, (enc_h_n, enc_c_n), enc_outputs, step=None)
 
         # shape == (batch_size, tgt_vocab_size, max_len+1)
         predict = predict.permute(1, 2, 0)

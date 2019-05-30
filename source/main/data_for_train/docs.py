@@ -7,7 +7,7 @@ from torch.utils.data import Dataset, DataLoader
 
 from naruto_skills.voc import Voc
 
-voc = None
+voc_src = None
 MAX_LENGTH = 100
 NUM_WORKERS = 0
 ROOT = '/source/'
@@ -40,7 +40,7 @@ class Docs(Dataset):
 
 
 def bootstrap():
-    global voc
+    global voc_src
     path = ROOT + 'main/vocab/output/tgt.pkl'
     voc = Voc.load(path)
     logging.info('Vocab from file %s contains %s tokens', path, len(voc.index2word))
@@ -56,7 +56,7 @@ def create_data_loader(path_to_csv, column_name, batch_size, num_workers, size=N
         data = [torch.from_numpy(col) for col in data]
         return data
 
-    my_dataset = Docs(path_to_csv, column_name, voc, size=size)
+    my_dataset = Docs(path_to_csv, column_name, voc_src, size=size)
     logging.info('Data at %s contains %s samples', path_to_csv, len(my_dataset))
     dl = DataLoader(dataset=my_dataset, batch_size=batch_size, shuffle=shuffle, num_workers=num_workers, collate_fn=collate_fn)
     return dl
