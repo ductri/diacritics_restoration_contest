@@ -20,15 +20,15 @@ if __name__ == '__main__':
     BATCH_SIZE = 32
     NUM_EPOCHS = 500
     NUM_WORKERS = 1
-    PRINT_EVERY = 200
-    PREDICT_EVERY = 500 #5000
+    PRINT_EVERY = 100
+    PREDICT_EVERY = 5000
     EVAL_EVERY = 10000
     PRE_TRAINED_MODEL = ''#'/source/main/train/output/saved_models/Seq2SeqAttn/2019-05-29T16:55:22/30000.pt'
 
     my_dataset.bootstrap()
-    train_loader = my_dataset.get_dl_train(batch_size=BATCH_SIZE, size=500)
-    eval_loader = my_dataset.get_dl_eval(batch_size=BATCH_SIZE, size=500)
-
+    train_loader = my_dataset.get_dl_train(batch_size=BATCH_SIZE, size=None)
+    eval_loader = my_dataset.get_dl_eval(batch_size=BATCH_SIZE, size=None)
+    logging.info('There will be %s steps for training', NUM_EPOCHS * (len(train_loader)/BATCH_SIZE))
     model = Seq2SeqAttn(src_vocab_size=len(my_dataset.voc_src.index2word),
                     tgt_vocab_size=len(my_dataset.voc_tgt.index2word),
                     start_idx=2,

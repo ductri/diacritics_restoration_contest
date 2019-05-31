@@ -83,8 +83,11 @@ def train(model, train_loader, eval_loader, dir_checkpoint, device, num_epoch=10
         predict_tensor = model(input_tensors[0])
 
         input_transformed = input_transform(input_tensors[0].cpu().numpy())
-        predict_transformed = output_transform(predict_tensor.cpu().numpy())
         target_transformed = output_transform(input_tensors[1].cpu().numpy())
+
+        seq_len_np = input_tensors[2].cpu().numpy()
+        predict_transformed = output_transform(predict_tensor.cpu().numpy())
+        predict_transformed = [' '.join(doc.split()[:seq_len_np[idx]]) for idx, doc in enumerate(predict_transformed)]
 
         for idx, (src, pred, tgt) in enumerate(zip(input_transformed, predict_transformed, target_transformed)):
             logging.info('Sample %s ', idx + 1)
