@@ -40,3 +40,14 @@ def length_to_mask_np(length, max_len=None, dtype=None):
     if dtype is not None:
         mask = torch.as_tensor(mask, dtype=dtype, device=length.device)
     return mask
+
+
+def register_buffer(model, name, value):
+    """
+    Register value as buffer of module, in case of value is not a Tensor
+    :param model:
+    :param name:
+    :param value:
+    :return:
+    """
+    model.register_buffer(name, torch.tensor([value]))
