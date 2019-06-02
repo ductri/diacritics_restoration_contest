@@ -68,8 +68,8 @@ class DecoderGreedyWithSrcInfer(nn.Module):
         with torch.no_grad():
             batch_size = enc_c_n.size(1)
             seq_len = enc_inputs.size(0)
-            decoder_output = torch.zeros(batch_size, seq_len)
-
+            # decoder_output = torch.zeros(batch_size, seq_len)
+            decoder_output = []
             current_word = starts_idx.view(1, batch_size).long()
             h_n, c_n = (enc_h_n, enc_c_n)
 
@@ -81,8 +81,9 @@ class DecoderGreedyWithSrcInfer(nn.Module):
                 # shape == (1, batch_size)
                 current_word = torch.argmax(output, dim=2)
 
-                decoder_output[:, step] = current_word[0]
-
+                decoder_output.append(current_word)
+                # decoder_output[:, step] = current_word[0]
+            decoder_output = torch.cat(decoder_output, dim=0).permute(1, 0)
             return decoder_output.int()
 
 

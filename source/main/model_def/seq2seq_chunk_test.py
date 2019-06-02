@@ -9,7 +9,6 @@ class TestSeq2SeqAttn(unittest.TestCase):
     def setUp(self):
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-    @unittest.skip('')
     def test_forward(self):
         src_vocab_size = 5
         batch_size = 2
