@@ -2,7 +2,7 @@ import logging
 import torch
 
 from data_for_train import dataset as my_dataset
-from model_def.seq2seq_attn import Seq2SeqAttn
+from model_def.seq2seq_attn_with_src import Seq2SeqAttnWithSrc
 from utils import pytorch_utils
 from train.trainer import train
 
@@ -23,13 +23,13 @@ if __name__ == '__main__':
     PRINT_EVERY = 100
     PREDICT_EVERY = 5000
     EVAL_EVERY = 10000
-    PRE_TRAINED_MODEL = ''#'/source/main/train/output/saved_models/Seq2SeqAttn/2019-05-29T16:55:22/30000.pt'
+    PRE_TRAINED_MODEL = '/source/main/train/output/saved_models/Seq2SeqAttnWithSrc/2019-06-01T08:51:02/90000.pt'
 
     my_dataset.bootstrap()
     train_loader = my_dataset.get_dl_train(batch_size=BATCH_SIZE, size=None)
     eval_loader = my_dataset.get_dl_eval(batch_size=BATCH_SIZE, size=None)
     logging.info('There will be %s steps for training', NUM_EPOCHS * (len(train_loader)/BATCH_SIZE))
-    model = Seq2SeqAttn(src_vocab_size=len(my_dataset.voc_src.index2word),
+    model = Seq2SeqAttnWithSrc(src_vocab_size=len(my_dataset.voc_src.index2word),
                     tgt_vocab_size=len(my_dataset.voc_tgt.index2word),
                     start_idx=2,
                     end_idx=3

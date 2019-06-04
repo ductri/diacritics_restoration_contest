@@ -51,3 +51,27 @@ def register_buffer(model, name, value):
     :return:
     """
     model.register_buffer(name, torch.tensor([value]))
+
+
+def tile(input, size, dim):
+    """
+    >>> x = torch.tensor([[1,2], [3, 4], [5,6]])
+    >>> x
+    tensor([[1, 2],
+            [3, 4],
+            [5, 6]])
+    >>> tile(x, 3, dim=1)
+    tensor([[1, 1, 1, 2, 2, 2],
+            [3, 3, 3, 4, 4, 4],
+            [5, 5, 5, 6, 6, 6]])
+    :param self:
+    :param input:
+    :param size:
+    :param dim:
+    :return:
+    """
+    assert input.dim() == 2
+    assert dim == 1
+    batch_size = input.size(0)
+    return input.view(-1, 1).repeat(1, size).view(batch_size, -1)
+

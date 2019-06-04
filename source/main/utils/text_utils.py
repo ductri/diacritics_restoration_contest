@@ -133,6 +133,7 @@ def process_line(line):
     utf8_line = utf8_line.strip('\n')
 
     no_tone_line_pre = remove_tone_line(utf8_line)
+    import pdb; pdb.set_trace()
     normalized_line_pre = normalize_tone_line(utf8_line)
 
     no_tone_line_alphanumeric = re.sub('[^a-zA-Z\d]', ' ', repr(no_tone_line_pre))
@@ -207,5 +208,6 @@ def count_lines(thefilepath):
 
 
 if __name__ == '__main__':
-    remove_tone_file('./data/demo_test.txt', './data/demo_no_tone.txt')
-    decompose_predicted_test_file('./data/demo_test.txt')
+    # remove_tone_file('./data/demo_test.txt', './data/demo_no_tone.txt')
+    # decompose_predicted_test_file('./data/demo_test.txt')
+    print(process_line('Sénégal'))

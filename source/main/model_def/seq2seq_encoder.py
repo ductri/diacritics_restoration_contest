@@ -3,16 +3,17 @@ from torch import nn
 
 class Encoder(nn.Module):
 
-    def __init__(self, vocab_size):
+    def __init__(self, vocab_size, is_bidirectional=True):
         """
         Output last hidden state of LSTM
         :param vocab_size:
         """
         super(Encoder, self).__init__()
+
         self.embedding_size = 256
         self.lstm_size = 512
         self.lstm_num_layer = 3
-        self.is_bidirectional = True
+        self.is_bidirectional = is_bidirectional
         self.dropout_rate = 0.3
 
         self.embedding = nn.Embedding(num_embeddings=vocab_size, embedding_dim=self.embedding_size)
@@ -33,7 +34,7 @@ class Encoder(nn.Module):
         # shape == (max_word_len, batch_size, hidden_size)
         word_embed_permuted = embedding.permute(1, 0, 2)
 
-        output, (h_n, c_n) = self.lstm(word_embed_permuted)
+        output, (h_n, c_n) = self.lstm(word_embed_permuted, *args)
 
         return h_n, c_n, output
 

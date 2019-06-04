@@ -31,8 +31,6 @@ class Seq2SeqAttnWithSrc(nn.Module):
         """
 
         :param word_input: shape == (batch_size, max_len)
-        :param start_idx: int scala
-        :param end_idx: int scala
         :param args:
         :return:
         """

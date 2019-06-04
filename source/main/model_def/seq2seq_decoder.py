@@ -16,8 +16,7 @@ class DecoderGreedyInfer(nn.Module):
         super(DecoderGreedyInfer, self).__init__()
         self.core_decoder = core_decoder
         self.register_buffer('start_idx', torch.Tensor([[start_idx]]))
-
-        self.max_length = max_length
+        self.register_buffer('max_length', max_length)
 
     def forward(self, enc_h_n, enc_c_n, *args):
         """
@@ -67,7 +66,7 @@ class DecoderGreedyWithSrcInfer(nn.Module):
         :param enc_outputs: shape = (seq_len, batch, _)
         :param enc_inputs: shape = (seq_len, batch, enc_embedding_size)
         :param args:
-        :return:
+        :return: shape == (batch, seq_len)
         """
         with torch.no_grad():
             batch_size = enc_c_n.size(1)
@@ -97,10 +96,10 @@ class RawDecoder(nn.Module):
         :param vocab_size:
         """
         super(RawDecoder, self).__init__()
-        self.embedding_size = 256
-        self.lstm_size = 512
-        self.lstm_num_layer = 3
-        self.dropout_rate = 0.3
+        self.register_buffer('embedding_size', 256)
+        self.register_buffer('lstm_size', 512)
+        self.register_buffer('lstm_num_layer', 3)
+        self.register_buffer('dropout_rate', 0.3)
 
         self.embedding = nn.Embedding(num_embeddings=vocab_size, embedding_dim=self.embedding_size)
         self.lstm = nn.LSTM(input_size=self.embedding_size, hidden_size=self.lstm_size, num_layers=self.lstm_num_layer,
@@ -134,11 +133,11 @@ class AttnRawDecoder(nn.Module):
         :param vocab_size:
         """
         super(AttnRawDecoder, self).__init__()
-        self.embedding_size = 256
-        self.lstm_size = 512
-        self.lstm_num_layer = 3
-        self.dropout_rate = 0.3
-        self.half_window_size = 50
+        self.register_buffer('embedding_size', 256)
+        self.register_buffer('lstm_size', 512)
+        self.register_buffer('lstm_num_layer', 3)
+        self.register_buffer('dropout_rate', 0.3)
+        self.register_buffer('half_window_size', 50)
 
         self.embedding = nn.Embedding(num_embeddings=vocab_size, embedding_dim=self.embedding_size)
         self.lstm = nn.LSTM(input_size=self.embedding_size, hidden_size=self.lstm_size, num_layers=self.lstm_num_layer,
@@ -191,11 +190,17 @@ class AttnRawDecoderWithSrc(nn.Module):
         :param vocab_size:
         """
         super(AttnRawDecoderWithSrc, self).__init__()
+        # self.register_buffer('embedding_size', 256)
+        # self.register_buffer('lstm_size', 512)
+        # self.register_buffer('lstm_num_layer', 3)
+        # self.register_buffer('dropout_rate', 0.3)
+        # self.register_buffer('half_window_size', 3)
         self.embedding_size = 256
         self.lstm_size = 512
         self.lstm_num_layer = 3
         self.dropout_rate = 0.3
         self.half_window_size = 3
+
         self.dec_embedding = nn.Embedding(num_embeddings=vocab_size, embedding_dim=self.embedding_size)
         self.lstm = nn.LSTM(input_size=self.embedding_size+enc_embedding_size, hidden_size=self.lstm_size, num_layers=self.lstm_num_layer,
                             bidirectional=False, dropout=self.dropout_rate)

@@ -17,6 +17,24 @@ class TestEncoder(unittest.TestCase):
         self.assertEqual(h_n.shape, (6, batch_size, 512))
         self.assertEqual(c_n.shape, (6, batch_size, 512))
 
+    def test_encoder_step_by_step(self):
+        batch_size = 2
+        seq_len = 2
+        vocab_size = 100
+        docs = torch.randint(vocab_size, size=(batch_size, seq_len))
+
+        encoder = Encoder(vocab_size=vocab_size, is_bidirectional=False)
+        encoder.eval()
+        with torch.no_grad():
+            h_n_1, c_n_1, _ = encoder(docs)
+
+            h_n_2, c_n_2, _ = encoder(docs[:, 0:1])
+            for step in range(1, seq_len):
+                h_n_2, c_n_2, _ = encoder(docs[:, step:step+1], (h_n_2, c_n_2))
+
+            self.assertEqual(torch.norm(h_n_1 - h_n_2), 0)
+            self.assertEqual(torch.norm(c_n_1 - c_n_2), 0)
+
 
 if __name__ == '__main__':
     unittest.main()
