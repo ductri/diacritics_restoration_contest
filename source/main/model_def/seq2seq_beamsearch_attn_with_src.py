@@ -9,7 +9,7 @@ from utils import pytorch_utils
 
 class Seq2SeqBeamAttnWithSrc(nn.Module):
 
-    def __init__(self, src_vocab_size, tgt_vocab_size, start_idx, end_idx, beam_width):
+    def __init__(self, src_vocab_size, tgt_vocab_size, start_idx, end_idx, beam_width, device):
         super(Seq2SeqBeamAttnWithSrc, self).__init__()
         self.lr_rate = 1e-3
         self.max_length = 100
@@ -21,7 +21,7 @@ class Seq2SeqBeamAttnWithSrc(nn.Module):
         self.core_decoder = AttnRawDecoderWithSrc(vocab_size=tgt_vocab_size, enc_output_size=_enc_output_size,
                                                   enc_embedding_size=self.encoder.embedding_size)
         self.infer_module = BeamSearchWithSrcInfer(core_decoder=self.core_decoder, start_idx=start_idx,
-                                                   beam_width=beam_width)
+                                                   beam_width=beam_width, device=device)
 
         self.xent = None
         self.optimizer = None
@@ -42,6 +42,7 @@ class Seq2SeqBeamAttnWithSrc(nn.Module):
         enc_inputs = self.encoder.embedding(word_input)
         enc_inputs = enc_inputs.permute(1, 0, 2)
         output = self.infer_module(h_n, c_n, outputs, enc_inputs, *args)
+        output = self.infer_module.decode_output_matrix(output)
         return output
 
     def train(self, mode=True):

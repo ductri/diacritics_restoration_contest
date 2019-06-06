@@ -1,12 +1,13 @@
 from torch import nn
 import torch
+import numpy as np
 
 from utils import pytorch_utils
 
 
 class BeamSearchWithSrcInfer(nn.Module):
 
-    def __init__(self, core_decoder, start_idx, beam_width):
+    def __init__(self, core_decoder, start_idx, beam_width, device):
         """
 
         :param core_decoder:
@@ -19,8 +20,9 @@ class BeamSearchWithSrcInfer(nn.Module):
         self.beam_width = beam_width
         self.softmax2 = nn.Softmax(dim=2)
         self.softmax1 = nn.Softmax(dim=1)
+        self.device = device
 
-    def forward(self, enc_h_n, enc_c_n, enc_outputs, enc_inputs, device):
+    def forward(self, enc_h_n, enc_c_n, enc_outputs, enc_inputs, *args):
         """
 
         :param enc_h_n: shape = (num_direction*num_layers, batch_size, hidden_size)
@@ -35,8 +37,8 @@ class BeamSearchWithSrcInfer(nn.Module):
             seq_len = enc_inputs.size(0)
             vocab_size = self.core_decoder.output_mapping.out_features
 
-            space_search = torch.ones(batch_size, vocab_size * self.beam_width).to(device)
-            decoder_outputs = torch.zeros(batch_size, seq_len, self.beam_width).to(device)
+            space_search = torch.ones(batch_size, vocab_size * self.beam_width).to(self.device)
+            decoder_outputs = torch.zeros(batch_size, seq_len, self.beam_width).to(self.device)
 
             top_k_v, top_k_i, (enc_h_n, enc_c_n) = self.init_beam_search(enc_h_n, enc_c_n, enc_outputs, enc_inputs)
 
@@ -71,7 +73,7 @@ class BeamSearchWithSrcInfer(nn.Module):
                 # shape == (batch_size, beam_width)
                 top_k_v, top_k_i = torch.topk(space_search, k=self.beam_width, dim=1)
 
-                current_scores = self.softmax1(top_k_v)
+                # current_scores = self.softmax1(top_k_v)
                 # The value of top_k_i contains 2 info: the current indices and the link to previous indices
                 decoder_outputs[:, step, :] = top_k_i
                 current_word = torch.fmod(top_k_i, vocab_size).view(*top_k_i.size(), 1)
@@ -106,5 +108,26 @@ class BeamSearchWithSrcInfer(nn.Module):
             output_prob = output_prob.squeeze(dim=0)
             # shape == (batch_size, beam_width)
             top_k_v, top_k_i = torch.topk(output_prob, k=self.beam_width, dim=1)
-            top_k_v = self.softmax1(top_k_v)
+            # top_k_v = self.softmax1(top_k_v)
             return top_k_v, top_k_i, (h_n, c_n)
+
+    def decode_output_matrix(self, decoder_outputs):
+        """
+
+        :param decoder_outputs: shape == (beam_width, batch, seq_len)
+        :return: Tensor shape == (beam_width, batch, seq_len)
+        """
+        batch_size = decoder_outputs.size(1)
+        seq_len = decoder_outputs.size(2)
+        vocab_size = self.core_decoder.output_mapping.out_features
+        batch_indices = torch.from_numpy(np.arange(batch_size)).long()
+
+        output = torch.zeros(batch_size, seq_len).long().to(self.device) - 1
+        beam_indices = torch.zeros(batch_size).long()
+
+        for step in range(seq_len-1, -1, -1):
+            # shape == (batch, )
+            output[:, step] = torch.fmod(decoder_outputs[beam_indices, batch_indices, step], vocab_size)
+            beam_indices = decoder_outputs[beam_indices, batch_indices, step].int() / int(vocab_size)
+            beam_indices = beam_indices.long()
+        return output

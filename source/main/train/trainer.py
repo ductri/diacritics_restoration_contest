@@ -7,24 +7,11 @@ logging.basicConfig(level=logging.INFO)
 import numpy as np
 import torch
 
-from utils import pytorch_utils, metrics
+from naruto_skills.dl_logging import DLLoggingHandler, DLTBHandler, DLLogger
+from utils import pytorch_utils
 from utils.training_checker import TrainingChecker
 from model_def.baseline import Baseline
 from model_def.simple_but_huge import SimpleButHuge
-
-
-class MyTrainingChecker(TrainingChecker):
-    def __init__(self, model, dir_checkpoint, init_score):
-        super(MyTrainingChecker, self).__init__(model, dir_checkpoint + '/' + model.__class__.__name__, init_score)
-
-    def save_model(self):
-        file_name = os.path.join(self._dir_checkpoint, '%s.pt' % self._step)
-        torch.save({
-            'model_state_dict': self._model.state_dict(),
-            'optimizer': self._model.optimizer.state_dict(),
-            'step': self._step,
-            'best_score': self._score
-        }, file_name)
 
 
 def cal_word_acc(prediction, target, seq_len):
@@ -96,10 +83,23 @@ def train(model, train_loader, eval_loader, dir_checkpoint, device, num_epoch=10
             logging.info('Target:\t%s', tgt)
             logging.info('------')
 
-    t_loss_tracking = metrics.MeanMetrics()
-    e_w_a_tracking = metrics.MeanMetrics()
-    e_s_a_tracking = metrics.MeanMetrics()
-    training_checker = MyTrainingChecker(model, dir_checkpoint, init_score=0)
+    training_checker = TrainingChecker(model, root_dir=dir_checkpoint, init_score=0)
+    my_logger = DLLogger()
+    my_logger.add_handler(DLLoggingHandler())
+    my_logger.add_handler(DLTBHandler('train/output/logging/%s/%s' % (model.__class__.__name__, training_checker.exp_id)))
+
+    e_w_a_tracking = []
+    e_s_a_tracking = []
+
+    t_loss_tracking_tag = 'train/loss'
+    t_w_a_tracking_tag = 'train/word_acc'
+    t_s_a_tracking_tag = 'train/sen_acc'
+    e_w_a_mean_tag = 'eval/word_acc'
+    e_s_a_mean_tag = 'eval/sen_acc'
+    e_w_a_std_tag = 'eval/word_acc_std'
+    e_s_a_sdt_tag = 'eval/sen_acc_std'
+    train_duration_tag = 'train/step_duration'
+    eval_duration_tag = 'eval/step_duration'
 
     step = init_step
     model.to(device)
@@ -109,7 +109,7 @@ def train(model, train_loader, eval_loader, dir_checkpoint, device, num_epoch=10
             inputs = [i.to(device) for i in inputs]
             start = time.time()
             train_loss = model.train_batch(*inputs)
-            t_loss_tracking.add(train_loss)
+            # my_logger.add_scalar(t_loss_tracking_tag, train_loss, step)
             step += 1
             with torch.no_grad():
                 if step % print_every == 0 or step == 1:
@@ -120,11 +120,10 @@ def train(model, train_loader, eval_loader, dir_checkpoint, device, num_epoch=10
                     w_acc = cal_word_acc(prediction_numpy, target_numpy, seq_len_numpy)
                     s_acc = cal_sen_acc(prediction_numpy, target_numpy, seq_len_numpy)
 
-                    logging.info(
-                        'Step: %s \t L_mean: %.4f±%.4f \t w_a: %.4f \t s_a: %.4f \t Duration: %.4f s/step' % (
-                            step, t_loss_tracking.mean(), float(np.std(t_loss_tracking.figures)),
-                            w_acc, s_acc, time.time() - start))
-                    t_loss_tracking.reset()
+                    my_logger.add_scalar(t_loss_tracking_tag, train_loss, step)
+                    my_logger.add_scalar(t_w_a_tracking_tag, w_acc, step)
+                    my_logger.add_scalar(t_s_a_tracking_tag, s_acc, step)
+                    my_logger.add_scalar(train_duration_tag, time.time() - start, step)
 
                 if step % predict_every == 0:
                     model.eval()
@@ -135,8 +134,8 @@ def train(model, train_loader, eval_loader, dir_checkpoint, device, num_epoch=10
 
                 if step % eval_every == 0:
                     model.eval()
-                    e_w_a_tracking.reset()
-                    e_s_a_tracking.reset()
+                    e_w_a_tracking.clear()
+                    e_s_a_tracking.clear()
 
                     start = time.time()
                     for eval_inputs in eval_loader:
@@ -144,17 +143,23 @@ def train(model, train_loader, eval_loader, dir_checkpoint, device, num_epoch=10
                         e_pred_numpy = model(eval_inputs[0]).cpu().numpy()
                         e_target_numpy = eval_inputs[1].cpu().numpy()
                         e_seq_len_numpy = eval_inputs[2].cpu().numpy()
-                        e_w_a_tracking.add(cal_word_acc(e_pred_numpy, e_target_numpy, e_seq_len_numpy))
-                        e_s_a_tracking.add(cal_sen_acc(e_pred_numpy, e_target_numpy, e_seq_len_numpy))
-                    logging.info('\n\n------------------ \tEvaluation\t------------------')
-                    logging.info('Step: %s', step)
-                    logging.info('Number of batchs: %s', e_w_a_tracking.get_count())
-                    logging.info('w_a: %.4f±%.4f \t s_a: %.4f±%.4f \t Duration: %.4f s/step',
-                                 e_w_a_tracking.mean(), float(np.std(e_w_a_tracking.figures)),
-                                 e_s_a_tracking.mean(), float(np.std(e_s_a_tracking.figures)),
-                                 time.time() - start)
+                        e_w_a_tracking.append(cal_word_acc(e_pred_numpy, e_target_numpy, e_seq_len_numpy))
+                        e_s_a_tracking.append(cal_sen_acc(e_pred_numpy, e_target_numpy, e_seq_len_numpy))
 
-                    training_checker.update(e_w_a_tracking.mean(), step)
+                    logging.info('\n\n------------------ \tEvaluation\t------------------')
+                    # logging.info('Step: %s', step)
+                    logging.info('Number of batchs: %s', len(e_w_a_tracking))
+                    my_logger.add_scalar(e_w_a_mean_tag, np.mean(e_w_a_tracking), step)
+                    my_logger.add_scalar(e_s_a_mean_tag, np.mean(e_s_a_tracking), step)
+                    my_logger.add_scalar(eval_duration_tag, time.time()-start, step)
+                    my_logger.add_scalar(e_w_a_std_tag, np.std(e_w_a_tracking), step)
+                    my_logger.add_scalar(e_s_a_sdt_tag, np.std(e_s_a_tracking), step)
+                    # logging.info('w_a: %.4f±%.4f \t s_a: %.4f±%.4f \t Duration: %.4f s/step',
+                    #              e_w_a_tracking.mean(), float(np.std(e_w_a_tracking.figures)),
+                    #              e_s_a_tracking.mean(), float(np.std(e_s_a_tracking.figures)),
+                    #              time.time() - start)
+
+                    training_checker.update(np.mean(e_w_a_tracking), step)
                     best_score, best_score_step = training_checker.best()
                     logging.info('Current best score: %s recorded at step %s', best_score, best_score_step)
 
