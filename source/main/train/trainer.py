@@ -8,7 +8,6 @@ import numpy as np
 import torch
 
 from naruto_skills.dl_logging import DLLoggingHandler, DLTBHandler, DLLogger
-from utils import pytorch_utils
 from utils.training_checker import TrainingChecker
 from model_def.baseline import Baseline
 from model_def.simple_but_huge import SimpleButHuge

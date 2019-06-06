@@ -28,7 +28,7 @@ if __name__ == '__main__':
     my_dataset.bootstrap()
     train_loader = my_dataset.get_dl_train(batch_size=BATCH_SIZE, size=None)
     eval_loader = my_dataset.get_dl_eval(batch_size=BATCH_SIZE, size=None)
-    logging.info('There will be %s steps for training', NUM_EPOCHS * (len(train_loader)/BATCH_SIZE))
+    logging.info('There will be %s steps for training', NUM_EPOCHS * int(len(train_loader)/BATCH_SIZE))
     model = Seq2SeqChunk(src_vocab_size=len(my_dataset.voc_src.index2word),
                     tgt_vocab_size=len(my_dataset.voc_tgt.index2word),
                          padding_idx=0,
