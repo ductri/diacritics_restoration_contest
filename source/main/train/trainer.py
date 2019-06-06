@@ -83,10 +83,10 @@ def train(model, train_loader, eval_loader, dir_checkpoint, device, num_epoch=10
             logging.info('Target:\t%s', tgt)
             logging.info('------')
 
-    training_checker = TrainingChecker(model, root_dir=dir_checkpoint, init_score=0)
+    training_checker = TrainingChecker(model, root_dir=dir_checkpoint+'/saved_models', init_score=0)
     my_logger = DLLogger()
     my_logger.add_handler(DLLoggingHandler())
-    my_logger.add_handler(DLTBHandler('train/output/logging/%s/%s' % (model.__class__.__name__, training_checker.exp_id)))
+    my_logger.add_handler(DLTBHandler(dir_checkpoint+'/logging/%s/%s' % (model.__class__.__name__, training_checker.exp_id)))
 
     e_w_a_tracking = []
     e_s_a_tracking = []

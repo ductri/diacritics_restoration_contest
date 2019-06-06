@@ -27,3 +27,13 @@ INFO:root:Current best score: 0.9734695462548292 recorded at step 470000
 INFO:root:Sample 1 
 
 ```
+
+
+- Temporarliy stop `diacritics_19-06-05_18_09_26`
+------------------ 	Evaluation	------------------
+INFO:root:Step: 90000
+INFO:root:Number of batchs: 157
+INFO:root:w_a: 0.9535±0.0084 	 s_a: 0.1992±0.0772 	 Duration: 38.0996 s/step
+INFO:root:New best score: 0.9534970709813919
+INFO:root:Saved model at /source/main/train/output/saved_models//Seq2SeqChunk/2019-06-05T16:09:41
+INFO:root:Current best score: 0.9534970709813919 recorded at step 90000

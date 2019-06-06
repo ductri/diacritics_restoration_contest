@@ -23,7 +23,7 @@ if __name__ == '__main__':
     PRINT_EVERY = 100
     PREDICT_EVERY = 5000
     EVAL_EVERY = 10000
-    PRE_TRAINED_MODEL = ''
+    PRE_TRAINED_MODEL = '/source/main/train/output/saved_models//Seq2SeqChunk/2019-06-05T16:09:41/90000.pt'
 
     my_dataset.bootstrap()
     train_loader = my_dataset.get_dl_train(batch_size=BATCH_SIZE, size=None)
@@ -51,6 +51,6 @@ if __name__ == '__main__':
 
         logging.info('Load pre-trained model from %s successfully', PRE_TRAINED_MODEL)
 
-    train(model, train_loader, eval_loader, dir_checkpoint='/source/main/train/output/saved_models/', device=device,
+    train(model, train_loader, eval_loader, dir_checkpoint='/source/main/train/output/', device=device,
           num_epoch=NUM_EPOCHS, print_every=PRINT_EVERY, predict_every=PREDICT_EVERY, eval_every=EVAL_EVERY,
           input_transform=input2_text, output_transform=target2_text, init_step=init_step)
