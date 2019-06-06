@@ -127,3 +127,7 @@ dmypy.json
 output/
 .idea/
 deprecated/
+
+notebooks/
+
+.gitignore
