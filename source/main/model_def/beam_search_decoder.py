@@ -115,7 +115,7 @@ class BeamSearchWithSrcInfer(nn.Module):
         """
 
         :param decoder_outputs: shape == (beam_width, batch, seq_len)
-        :return: Tensor shape == (beam_width, batch, seq_len)
+        :return: Tensor shape == (batch, seq_len)
         """
         batch_size = decoder_outputs.size(1)
         seq_len = decoder_outputs.size(2)

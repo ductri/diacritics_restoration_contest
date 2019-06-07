@@ -34,10 +34,10 @@ class SimpleButHuge(nn.Module):
         self.conv4 = nn.Conv1d(in_channels=1024 + 1024, out_channels=1024, kernel_size=3, padding=1)
         self.conv4_bn = nn.BatchNorm1d(1024)
 
-        self.conv5 = nn.Conv1d(in_channels=1024, out_channels=512, kernel_size=3, padding=1)
+        self.conv5 = nn.Conv1d(in_channels=1024, out_channels=512, kernel_size=5, padding=3)
         self.conv5_bn = nn.BatchNorm1d(512)
 
-        self.conv6 = nn.Conv1d(in_channels=512, out_channels=512, kernel_size=3, padding=1)
+        self.conv6 = nn.Conv1d(in_channels=512, out_channels=512, kernel_size=7, padding=5)
         self.conv6_bn = nn.BatchNorm1d(512)
 
         self.fc1 = nn.Linear(in_features=512, out_features=512)
@@ -133,6 +133,9 @@ class SimpleButHuge(nn.Module):
 
         # shape == (batch_size, max_word_len, 1024)
         pipe = pipe.permute(0, 2, 1)
+
+        assert pipe.size(0) == input_word.size(0)
+        assert pipe.size(1) == input_word.size(1)
 
         # shape == (batch_size, max_word_len, no_classes)
         output = self.fc1(pipe)

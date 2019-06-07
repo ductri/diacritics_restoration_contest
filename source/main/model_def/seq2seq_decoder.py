@@ -2,6 +2,7 @@ import torch
 from torch import nn
 
 from model_def.attention import Attention
+from utils.pytorch_utils import register_buffer
 
 
 class DecoderGreedyInfer(nn.Module):
@@ -16,7 +17,7 @@ class DecoderGreedyInfer(nn.Module):
         super(DecoderGreedyInfer, self).__init__()
         self.core_decoder = core_decoder
         self.register_buffer('start_idx', torch.Tensor([[start_idx]]))
-        self.register_buffer('max_length', max_length)
+        self.max_length = max_length
 
     def forward(self, enc_h_n, enc_c_n, *args):
         """
@@ -96,16 +97,16 @@ class RawDecoder(nn.Module):
         :param vocab_size:
         """
         super(RawDecoder, self).__init__()
-        self.register_buffer('embedding_size', 256)
-        self.register_buffer('lstm_size', 512)
-        self.register_buffer('lstm_num_layer', 3)
-        self.register_buffer('dropout_rate', 0.3)
+        self.embedding_size = 256
+        self.lstm_size = 512
+        self.lstm_num_layer = 3
+        register_buffer(self, 'dropout_rate', 0.3)
 
         self.embedding = nn.Embedding(num_embeddings=vocab_size, embedding_dim=self.embedding_size)
         self.lstm = nn.LSTM(input_size=self.embedding_size, hidden_size=self.lstm_size, num_layers=self.lstm_num_layer,
-                            bidirectional=False, dropout=self.dropout_rate)
+                            bidirectional=False, dropout=self.dropout_rate.item())
         self.output_mapping = nn.Linear(self.lstm_size, vocab_size)
-        self.dropout = nn.Dropout(p=self.dropout_rate)
+        self.dropout = nn.Dropout(p=self.dropout_rate.item())
 
     def forward(self, inputs_idx, h_n_c_n, *args):
         """
@@ -133,11 +134,11 @@ class AttnRawDecoder(nn.Module):
         :param vocab_size:
         """
         super(AttnRawDecoder, self).__init__()
-        self.register_buffer('embedding_size', 256)
-        self.register_buffer('lstm_size', 512)
-        self.register_buffer('lstm_num_layer', 3)
-        self.register_buffer('dropout_rate', 0.3)
-        self.register_buffer('half_window_size', 50)
+        self.embedding_size = 256
+        self.lstm_size = 512
+        self.lstm_num_layer = 3
+        self.dropout_rate = 0.3
+        self.half_window_size = 50
 
         self.embedding = nn.Embedding(num_embeddings=vocab_size, embedding_dim=self.embedding_size)
         self.lstm = nn.LSTM(input_size=self.embedding_size, hidden_size=self.lstm_size, num_layers=self.lstm_num_layer,

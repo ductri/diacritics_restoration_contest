@@ -15,7 +15,7 @@ class TestSeq2SeqAttn(unittest.TestCase):
         seq_len = 101
 
         inputs_idx = torch.randint(src_vocab_size, size=(batch_size, seq_len))
-        model = Seq2SeqChunk(src_vocab_size=src_vocab_size, tgt_vocab_size=5, start_idx=1, padding_idx=3)
+        model = Seq2SeqChunk(src_vocab_size=src_vocab_size, tgt_vocab_size=5, start_idx=1, padding_idx=3, max_length=seq_len)
         output = model(inputs_idx)
         self.assertEqual(output.size(), (batch_size, seq_len))
 
@@ -23,14 +23,14 @@ class TestSeq2SeqAttn(unittest.TestCase):
         src_vocab_size = 7
         tgt_vocab_size = 7
         batch_size = 2
-        max_length = 10
+        max_length = 50
         inputs_idx = torch.randint(low=0, high=src_vocab_size-2, size=(batch_size, max_length)).to(self.device)
         target_idx = torch.randint(low=0, high=src_vocab_size - 2, size=(batch_size, max_length)).to(self.device)
         # target_idx = inputs_idx.clone()
         print('Input', inputs_idx)
         print('Target', target_idx)
-        # length = torch.randint(low=3, high=10, size=(batch_size, )).to(self.device)
-        length = torch.tensor([20, 27]).to(self.device)
+        length = torch.randint(low=3, high=50, size=(batch_size, )).to(self.device)
+        # length = torch.tensor([20, 27]).to(self.device)
         model = Seq2SeqChunk(src_vocab_size=src_vocab_size, tgt_vocab_size=tgt_vocab_size, start_idx=5, padding_idx=6,
                              max_length=max_length)
         model.train()
