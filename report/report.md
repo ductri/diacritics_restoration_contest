@@ -37,3 +37,16 @@ INFO:root:w_a: 0.9535±0.0084 	 s_a: 0.1992±0.0772 	 Duration: 38.0996 s/step
 INFO:root:New best score: 0.9534970709813919
 INFO:root:Saved model at /source/main/train/output/saved_models//Seq2SeqChunk/2019-06-05T16:09:41
 INFO:root:Current best score: 0.9534970709813919 recorded at step 90000
+
+
+- Temporarily stop `diacritics_19-06-06_12_01_28` because its coverage was too slow
++ Monitoring: Seq2SeqChunk/2019-06-06T10:01:42
+```buildoutcfg
+------------------ 	Evaluation	------------------
+INFO:root:Number of batchs: 157
+INFO:root:New best score: 0.9621806538241117
+INFO:root:Saved model at /source/main/train/output//saved_models/Seq2SeqChunk/2019-06-06T10:01:42/210000.pt
+INFO:root:Current best score: 0.9621806538241117 recorded at step 210000
+
+```
+
