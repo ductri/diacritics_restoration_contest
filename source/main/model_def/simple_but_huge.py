@@ -1,15 +1,11 @@
-import logging
-
-logging.basicConfig(level=logging.INFO)
-
 import torch
 from torch import nn, optim
 
 from utils import pytorch_utils
 
-MAX_LEN = 400
 
 """
+DEPRECATED
 diacritics_19-05-04_03_40_28
 ------------------ 	Evaluation	------------------
 INFO:root:Step: 1320000
@@ -21,8 +17,10 @@ INFO:root:Current best score: 0.9800801243230254 recorded at step 470000
 
 
 class SimpleButHuge(nn.Module):
+
     def __init__(self, src_word_vocab_size, tgt_word_vocab_size):
         super(SimpleButHuge, self).__init__()
+
         self.input_embedding = nn.Embedding(num_embeddings=src_word_vocab_size, embedding_dim=1024)
 
         # Conv1d slides on last axis
@@ -42,44 +40,60 @@ class SimpleButHuge(nn.Module):
         self.conv6 = nn.Conv1d(in_channels=512, out_channels=512, kernel_size=3, padding=1)
         self.conv6_bn = nn.BatchNorm1d(512)
 
-        self.fc = nn.Linear(in_features=512, out_features=tgt_word_vocab_size)
+        self.fc1 = nn.Linear(in_features=512, out_features=512)
+        self.fc2 = nn.Linear(in_features=512, out_features=tgt_word_vocab_size)
 
         self.relu = nn.ReLU()
+        self.xent = None
+        self.optimizer = None
 
-    def build_stuff_for_training(self, device):
-        mll_loss = nn.NLLLoss(reduction='none')
+    def train(self, mode=True):
+        if self.xent is None:
+            self.xent = nn.CrossEntropyLoss(reduction='none')
+        if self.optimizer is None:
+            self.optimizer = optim.Adam(self.parameters(), lr=1e-3)
+        super().train(mode)
 
-        def loss(pred, sequence_len, y):
-            """
+    def get_loss(self, word_input, target, length):
+        """
 
-            :param pred: shape == (batch_size, seq_len, no_class)
-            :param sequence_len: shape == (batch_size, seq_len)
-            :param y: shape == (batch_size, seq_len)
-            :return:
-            """
-            max_len = pred.size(1)
+        :param word_input: shape == (batch_size, max_len)
+        :param target: shape == (batch_size, max_len)
+        :param length: shape == (batch_size)
+        :return:
+        """
+        max_length = word_input.size(1)
 
-            # shape == (batch_size, no_class, seq_len)
-            pred = pred.permute(0, 2, 1)
+        # shape == (batch, max_len, vocab_size)
+        predict = self.inner_forward(word_input)
+        # shape == (batch, vocab_size, max_len)
+        predict = predict.permute(0, 2, 1)
 
-            # shape == (batch_size, max_len)
-            loss = mll_loss(pred, y)
-
-            mask_loss = pytorch_utils.length_to_mask(length=sequence_len, max_len=max_len)
-            loss *= mask_loss.float().to(device)
-
-            return loss.sum(dim=1).mean(dim=0)
-
-        self.loss = loss
-        self.optimizer = optim.Adam(self.parameters(), lr=0.002)
+        loss = self.xent(predict, target)
+        loss_mask = pytorch_utils.length_to_mask(length, max_len=max_length, dtype=torch.float)
+        loss = torch.mul(loss, loss_mask)
+        loss = torch.div(loss.sum(dim=1), length.float())
+        loss = loss.mean(dim=0)
+        return loss
 
     def forward(self, input_word, *params):
         """
 
-        :param
-        - input_word shape == (batch_size, max_word_len)
-        :return:
+        :param input_word: shape == (batch, max_len)
+        :param params:
+        :return: Tensor shape == (batch, max_len, vocab_size)
         """
+
+        logits = self.inner_forward(input_word)
+        return torch.argmax(logits, dim=2)
+
+    def inner_forward(self, input_word, *params):
+        """
+
+        :param input_word shape == (batch_size, max_word_len)
+        :return: Tensor shape == (batch, max_len, vocab_size)
+        """
+
         # shape == (batch_size, max_word_len, hidden_size)
         word_embed = self.input_embedding(input_word)
 
@@ -107,6 +121,7 @@ class SimpleButHuge(nn.Module):
         pipe = self.conv4(pipe)
         pipe = self.relu(pipe)
         pipe = self.conv4_bn(pipe)
+        pipe = self.dropout(pipe)
 
         pipe = self.conv5(pipe)
         pipe = self.relu(pipe)
@@ -120,27 +135,26 @@ class SimpleButHuge(nn.Module):
         pipe = pipe.permute(0, 2, 1)
 
         # shape == (batch_size, max_word_len, no_classes)
-        output = self.fc(pipe)
+        output = self.fc1(pipe)
+        output = self.relu(output)
+        output = self.dropout(output)
+        output = self.fc2(output)
 
-        output = nn.LogSoftmax(dim=-1)(output)
         return output
 
-    def train_batch(self, input_char, word_len, y):
-        self.train()
-
-        self.optimizer.zero_grad()
-        pred = self.forward(input_char)
-        loss = self.loss(pred, word_len, y)
-        loss.backward()
-        self.optimizer.step()
-        return loss.item()
-
-    def cvt_output(self, output):
+    def train_batch(self, word_input, target, length):
         """
 
-        :param output: shape == (batch_size, max_char_len, output_size)
+        :param word_input: shape == (batch_size, max_len)
+        :param target: shape == (batch_size, max_len)
         :return:
         """
-        return output.argmax(dim=-1)
+        self.train()
+        self.optimizer.zero_grad()
+        loss = self.get_loss(word_input, target, length)
+        loss.backward()
+        self.optimizer.step()
+
+        return loss.item()
 
 

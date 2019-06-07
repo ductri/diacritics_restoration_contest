@@ -89,10 +89,12 @@ def train(model, train_loader, eval_loader, dir_checkpoint, device, num_epoch=10
 
     e_w_a_tracking = []
     e_s_a_tracking = []
+    t_loss_tracking = []
 
-    t_loss_tracking_tag = 'train/loss'
-    t_w_a_tracking_tag = 'train/word_acc'
-    t_s_a_tracking_tag = 'train/sen_acc'
+    t_loss_mean_tag = 'train/loss_mean'
+    t_loss_std_tag = 'train/loss_std'
+    t_w_a_tag = 'train/word_acc'
+    t_s_a_tag = 'train/sen_acc'
     e_w_a_mean_tag = 'eval/word_acc'
     e_s_a_mean_tag = 'eval/sen_acc'
     e_w_a_std_tag = 'eval/word_acc_std'
@@ -107,8 +109,7 @@ def train(model, train_loader, eval_loader, dir_checkpoint, device, num_epoch=10
         for inputs in train_loader:
             inputs = [i.to(device) for i in inputs]
             start = time.time()
-            train_loss = model.train_batch(*inputs)
-            # my_logger.add_scalar(t_loss_tracking_tag, train_loss, step)
+            t_loss_tracking.append(model.train_batch(*inputs))
             step += 1
             with torch.no_grad():
                 if step % print_every == 0 or step == 1:
@@ -119,10 +120,12 @@ def train(model, train_loader, eval_loader, dir_checkpoint, device, num_epoch=10
                     w_acc = cal_word_acc(prediction_numpy, target_numpy, seq_len_numpy)
                     s_acc = cal_sen_acc(prediction_numpy, target_numpy, seq_len_numpy)
 
-                    my_logger.add_scalar(t_loss_tracking_tag, train_loss, step)
-                    my_logger.add_scalar(t_w_a_tracking_tag, w_acc, step)
-                    my_logger.add_scalar(t_s_a_tracking_tag, s_acc, step)
+                    my_logger.add_scalar(t_loss_mean_tag, np.mean(t_loss_tracking), step)
+                    my_logger.add_scalar(t_loss_std_tag, np.std(t_loss_tracking), step)
+                    my_logger.add_scalar(t_w_a_tag, w_acc, step)
+                    my_logger.add_scalar(t_s_a_tag, s_acc, step)
                     my_logger.add_scalar(train_duration_tag, time.time() - start, step)
+                    t_loss_tracking.clear()
 
                 if step % predict_every == 0:
                     model.eval()
@@ -146,17 +149,12 @@ def train(model, train_loader, eval_loader, dir_checkpoint, device, num_epoch=10
                         e_s_a_tracking.append(cal_sen_acc(e_pred_numpy, e_target_numpy, e_seq_len_numpy))
 
                     logging.info('\n\n------------------ \tEvaluation\t------------------')
-                    # logging.info('Step: %s', step)
                     logging.info('Number of batchs: %s', len(e_w_a_tracking))
                     my_logger.add_scalar(e_w_a_mean_tag, np.mean(e_w_a_tracking), step)
                     my_logger.add_scalar(e_s_a_mean_tag, np.mean(e_s_a_tracking), step)
                     my_logger.add_scalar(eval_duration_tag, time.time()-start, step)
                     my_logger.add_scalar(e_w_a_std_tag, np.std(e_w_a_tracking), step)
                     my_logger.add_scalar(e_s_a_sdt_tag, np.std(e_s_a_tracking), step)
-                    # logging.info('w_a: %.4f±%.4f \t s_a: %.4f±%.4f \t Duration: %.4f s/step',
-                    #              e_w_a_tracking.mean(), float(np.std(e_w_a_tracking.figures)),
-                    #              e_s_a_tracking.mean(), float(np.std(e_s_a_tracking.figures)),
-                    #              time.time() - start)
 
                     training_checker.update(np.mean(e_w_a_tracking), step)
                     best_score, best_score_step = training_checker.best()
