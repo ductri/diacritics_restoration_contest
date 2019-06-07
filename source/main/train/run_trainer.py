@@ -2,7 +2,7 @@ import logging
 import torch
 
 from data_for_train import dataset as my_dataset
-from model_def.seq2seq_chunk import Seq2SeqChunk
+from model_def.simple_but_huge import SimpleButHuge
 from utils import pytorch_utils
 from train.trainer import train
 
@@ -23,18 +23,14 @@ if __name__ == '__main__':
     PRINT_EVERY = 100
     PREDICT_EVERY = 5000
     EVAL_EVERY = 10000
-    PRE_TRAINED_MODEL = '/source/main/train/output/saved_models//Seq2SeqChunk/2019-06-05T16:09:41/90000.pt'
+    PRE_TRAINED_MODEL = ''
 
     my_dataset.bootstrap()
     train_loader = my_dataset.get_dl_train(batch_size=BATCH_SIZE, size=None)
     eval_loader = my_dataset.get_dl_eval(batch_size=BATCH_SIZE, size=None)
     logging.info('There will be %s steps for training', NUM_EPOCHS * int(len(train_loader)/BATCH_SIZE))
-    model = Seq2SeqChunk(src_vocab_size=len(my_dataset.voc_src.index2word),
-                    tgt_vocab_size=len(my_dataset.voc_tgt.index2word),
-                         padding_idx=0,
-                    start_idx=2,
-                    max_length=100
-                    )
+    model = SimpleButHuge(src_vocab_size=len(my_dataset.voc_src.index2word),
+                    tgt_vocab_size=len(my_dataset.voc_tgt.index2word))
     model.train()
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     model.to(device)

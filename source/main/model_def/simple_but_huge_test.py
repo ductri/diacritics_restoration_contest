@@ -15,7 +15,7 @@ class TestSeq2SeqAttnWithSrc(unittest.TestCase):
         seq_len = 10
 
         inputs_idx = torch.randint(src_vocab_size, size=(batch_size, seq_len))
-        model = SimpleButHuge(src_word_vocab_size=src_vocab_size, tgt_word_vocab_size=5)
+        model = SimpleButHuge(src_vocab_size=src_vocab_size, tgt_vocab_size=5)
         output = model(inputs_idx)
         self.assertEqual(output.size(), (batch_size, seq_len))
 
@@ -28,7 +28,7 @@ class TestSeq2SeqAttnWithSrc(unittest.TestCase):
         target_idx = torch.randint(low=0, high=src_vocab_size, size=(batch_size, seq_length)).to(self.device)
         length = torch.mul(torch.ones(batch_size), 50).to(self.device)
 
-        model = SimpleButHuge(src_word_vocab_size=src_vocab_size, tgt_word_vocab_size=tgt_vocab_size)
+        model = SimpleButHuge(src_vocab_size=src_vocab_size, tgt_vocab_size=tgt_vocab_size)
         model.train()
         model.to(self.device)
         for step in range(50):

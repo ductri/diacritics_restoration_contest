@@ -18,10 +18,10 @@ INFO:root:Current best score: 0.9800801243230254 recorded at step 470000
 
 class SimpleButHuge(nn.Module):
 
-    def __init__(self, src_word_vocab_size, tgt_word_vocab_size):
+    def __init__(self, src_vocab_size, tgt_vocab_size):
         super(SimpleButHuge, self).__init__()
 
-        self.input_embedding = nn.Embedding(num_embeddings=src_word_vocab_size, embedding_dim=1024)
+        self.input_embedding = nn.Embedding(num_embeddings=src_vocab_size, embedding_dim=1024)
 
         # Conv1d slides on last axis
         self.conv1 = nn.Conv1d(in_channels=1024, out_channels=1024, kernel_size=5, padding=2)
@@ -34,14 +34,14 @@ class SimpleButHuge(nn.Module):
         self.conv4 = nn.Conv1d(in_channels=1024 + 1024, out_channels=1024, kernel_size=3, padding=1)
         self.conv4_bn = nn.BatchNorm1d(1024)
 
-        self.conv5 = nn.Conv1d(in_channels=1024, out_channels=512, kernel_size=5, padding=3)
+        self.conv5 = nn.Conv1d(in_channels=1024, out_channels=512, kernel_size=5, padding=2)
         self.conv5_bn = nn.BatchNorm1d(512)
 
-        self.conv6 = nn.Conv1d(in_channels=512, out_channels=512, kernel_size=7, padding=5)
+        self.conv6 = nn.Conv1d(in_channels=512, out_channels=512, kernel_size=7, padding=3)
         self.conv6_bn = nn.BatchNorm1d(512)
 
         self.fc1 = nn.Linear(in_features=512, out_features=512)
-        self.fc2 = nn.Linear(in_features=512, out_features=tgt_word_vocab_size)
+        self.fc2 = nn.Linear(in_features=512, out_features=tgt_vocab_size)
 
         self.relu = nn.ReLU()
         self.xent = None
@@ -133,7 +133,6 @@ class SimpleButHuge(nn.Module):
 
         # shape == (batch_size, max_word_len, 1024)
         pipe = pipe.permute(0, 2, 1)
-
         assert pipe.size(0) == input_word.size(0)
         assert pipe.size(1) == input_word.size(1)
 
