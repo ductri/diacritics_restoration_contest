@@ -1,7 +1,7 @@
 import torch
 from torch import nn
 
-from model_def.attention import Attention
+from model_def.seq2seq_feeding_attn_with_src.attention import Attention
 from utils.pytorch_utils import register_buffer
 
 

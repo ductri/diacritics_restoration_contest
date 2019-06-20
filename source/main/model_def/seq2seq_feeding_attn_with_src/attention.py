@@ -1,13 +1,15 @@
 import torch
 from torch import nn
+from torch.nn import functional as F
 
 
 class Attention(nn.Module):
-    def __init__(self, enc_output_size, dec_output_size):
+    def __init__(self, enc_output_size, dec_output_size, output_size):
         super(Attention, self).__init__()
         self.attention_size = 256
         self.scoring = nn.Linear(dec_output_size, enc_output_size)
         self.softmax = nn.Softmax(dim=1)
+        self.shrink_output = nn.Linear(enc_output_size + dec_output_size, output_size)
 
     def forward(self, enc_outputs, dec_output, *args):
         """
@@ -39,6 +41,9 @@ class Attention(nn.Module):
 
         # shape == (batch, enc_output_size + dec_output_size)
         context = torch.cat((context, dec_output), dim=1)
+
+        context = self.shrink_output(context)
+        context = F.relu(context)
 
         return context, attn_weight.squeeze(dim=2)
 

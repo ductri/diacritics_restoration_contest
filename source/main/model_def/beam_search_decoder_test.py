@@ -2,7 +2,7 @@ import unittest
 
 import torch
 
-from model_def.decoder import AttnRawDecoderWithSrc
+from model_def.seq2seq_feeding_attn_with_src.decoder import AttnRawDecoderWithSrc
 from model_def.beam_search_decoder import BeamSearchWithSrcInfer
 
 

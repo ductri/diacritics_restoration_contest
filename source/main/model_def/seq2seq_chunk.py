@@ -1,8 +1,8 @@
 import torch
 from torch import nn, optim
 
-from model_def.decoder import DecoderGreedyWithSrcInfer, AttnRawDecoderWithSrc
-from model_def.encoder import Encoder, FlattenHiddenLSTM
+from model_def.seq2seq_feeding_attn_with_src.decoder import DecoderGreedyWithSrcInfer, AttnRawDecoderWithSrc
+from model_def.seq2seq_feeding_attn_with_src.encoder import Encoder, FlattenHiddenLSTM
 from utils import pytorch_utils
 
 

@@ -1,7 +1,9 @@
 import unittest
+
+import numpy as np
 import torch
 
-from model_def.encoder import Encoder
+from model_def.seq2seq_feeding_attn_with_src.encoder import Encoder, create_my_embedding
 
 
 class TestEncoder(unittest.TestCase):
@@ -11,7 +13,7 @@ class TestEncoder(unittest.TestCase):
         docs = torch.Tensor([[1, 2, 3, 4], [1, 2, 2, 4]]).long()
         batch_size = docs.size(0)
 
-        encoder = Encoder(vocab_size=5)
+        encoder = Encoder(embedding=create_my_embedding(np.random.rand(10, 5)))
         h_n, c_n, _ = encoder(docs)
 
         self.assertEqual(h_n.shape, (6, batch_size, 512))
@@ -23,7 +25,7 @@ class TestEncoder(unittest.TestCase):
         vocab_size = 100
         docs = torch.randint(vocab_size, size=(batch_size, seq_len))
 
-        encoder = Encoder(vocab_size=vocab_size, is_bidirectional=False)
+        encoder = Encoder(embedding=create_my_embedding(np.random.rand(vocab_size, 5)), is_bidirectional=False)
         encoder.eval()
         with torch.no_grad():
             h_n_1, c_n_1, _ = encoder(docs)

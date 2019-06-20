@@ -2,7 +2,7 @@ import logging
 import torch
 
 from data_for_train import dataset as my_dataset
-from model_def.simple_but_huge import SimpleButHuge
+from model_def.seq2seq_feeding_attn import Seq2SeqFeedingAttn
 from utils import pytorch_utils
 from train.trainer import train
 
@@ -18,19 +18,20 @@ def target2_text(first_input, *params):
 if __name__ == '__main__':
     logging.basicConfig(level=logging.INFO)
     BATCH_SIZE = 32
-    NUM_EPOCHS = 500
+    NUM_EPOCHS = 100
     NUM_WORKERS = 1
     PRINT_EVERY = 100
     PREDICT_EVERY = 5000
     EVAL_EVERY = 10000
-    PRE_TRAINED_MODEL = ''
+    PRE_TRAINED_MODEL = '/source/main/train/output//saved_models/Seq2SeqFeedingAttn/2019-06-13T11:50:26/80000.pt'
 
     my_dataset.bootstrap()
     train_loader = my_dataset.get_dl_train(batch_size=BATCH_SIZE, size=None)
     eval_loader = my_dataset.get_dl_eval(batch_size=BATCH_SIZE, size=None)
-    logging.info('There will be %s steps for training', NUM_EPOCHS * int(len(train_loader)/BATCH_SIZE))
-    model = SimpleButHuge(src_vocab_size=len(my_dataset.voc_src.index2word),
-                    tgt_vocab_size=len(my_dataset.voc_tgt.index2word))
+    logging.info('There will be %s steps for training', NUM_EPOCHS * len(train_loader))
+    model = Seq2SeqFeedingAttn(src_vocab_size=len(my_dataset.voc_src.index2word),
+                               tgt_vocab_size=len(my_dataset.voc_tgt.index2word),
+                               start_idx=2, end_idx=3)
     model.train()
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     model.to(device)

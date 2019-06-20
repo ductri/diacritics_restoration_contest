@@ -4,22 +4,10 @@ from torch import nn, optim
 from utils import pytorch_utils
 
 
-"""
-DEPRECATED
-diacritics_19-05-04_03_40_28
------------------- 	Evaluation	------------------
-INFO:root:Step: 1320000
-INFO:root:Number of batchs: 157
-INFO:root:L_mean: 13362815.6725±114847554.0418(8.0722) 	  w_a: 0.9791±0.0053 	 s_a: 0.4656±0.0885 	 Duration: 6.1710 s/step
-INFO:root:Current best score: 0.9800801243230254 recorded at step 470000
-
-"""
-
-
-class SimpleButHuge(nn.Module):
+class SimpleButHugeAndHuge(nn.Module):
 
     def __init__(self, src_vocab_size, tgt_vocab_size):
-        super(SimpleButHuge, self).__init__()
+        super(SimpleButHugeAndHuge, self).__init__()
 
         self.input_embedding = nn.Embedding(num_embeddings=src_vocab_size, embedding_dim=1024)
 
@@ -29,7 +17,7 @@ class SimpleButHuge(nn.Module):
         self.conv3 = nn.Conv1d(in_channels=1024, out_channels=1024, kernel_size=3, padding=1)
         self.conv3_bn = nn.BatchNorm1d(1024)
 
-        self.dropout = nn.Dropout(p=0.2)
+        self.dropout = nn.Dropout(p=0.3)
 
         self.conv4 = nn.Conv1d(in_channels=1024 + 1024, out_channels=1024, kernel_size=3, padding=1)
         self.conv4_bn = nn.BatchNorm1d(1024)
@@ -39,6 +27,13 @@ class SimpleButHuge(nn.Module):
 
         self.conv6 = nn.Conv1d(in_channels=512, out_channels=512, kernel_size=7, padding=3)
         self.conv6_bn = nn.BatchNorm1d(512)
+
+        self.conv7 = nn.Conv1d(in_channels=512, out_channels=512, kernel_size=7, padding=3)
+        self.conv7_bn = nn.BatchNorm1d(512)
+        self.conv8 = nn.Conv1d(in_channels=512, out_channels=512, kernel_size=7, padding=3)
+        self.conv8_bn = nn.BatchNorm1d(512)
+        self.conv9 = nn.Conv1d(in_channels=512, out_channels=512, kernel_size=7, padding=3)
+        self.conv9_bn = nn.BatchNorm1d(512)
 
         self.fc1 = nn.Linear(in_features=512, out_features=512)
         self.fc2 = nn.Linear(in_features=512, out_features=tgt_vocab_size)
@@ -136,9 +131,23 @@ class SimpleButHuge(nn.Module):
         assert pipe.size(0) == input_word.size(0)
         assert pipe.size(1) == input_word.size(1)
 
-        # shape == (batch_size, max_word_len, no_classes)
+        # shape == (batch_size, max_word_len, _)
         output = self.fc1(pipe)
         output = self.relu(output)
+        output = output.permute(0, 2, 1)
+        pipe = self.conv7(output)
+        pipe = self.relu(pipe)
+        pipe = self.conv7(pipe)
+
+        pipe = self.conv8(pipe)
+        pipe = self.relu(pipe)
+        pipe = self.conv8(pipe)
+
+        pipe = self.conv9(pipe)
+        pipe = self.relu(pipe)
+        pipe = self.conv9(pipe)
+
+        output = pipe.permute(0, 2, 1)
         output = self.dropout(output)
         output = self.fc2(output)
 

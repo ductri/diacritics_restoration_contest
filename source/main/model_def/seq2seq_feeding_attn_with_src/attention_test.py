@@ -1,7 +1,7 @@
 import unittest
 import torch
 
-from model_def.attention import Attention
+from model_def.seq2seq_feeding_attn_with_src.attention import Attention
 
 
 class TestAttention(unittest.TestCase):
@@ -11,13 +11,14 @@ class TestAttention(unittest.TestCase):
         dec_output_size = 15
         batch_size = 7
         seq_len = 3
+        output_size = 11
 
-        attention = Attention(enc_output_size=enc_output_size, dec_output_size=dec_output_size)
+        attention = Attention(enc_output_size=enc_output_size, dec_output_size=dec_output_size, output_size=output_size)
         enc_outputs = torch.randn(seq_len, batch_size, enc_output_size)
         dec_output = torch.randn(batch_size, dec_output_size)
 
         output, weights = attention(enc_outputs, dec_output)
-        self.assertListEqual(list(output.size()), [batch_size, enc_output_size+dec_output_size])
+        self.assertListEqual(list(output.size()), [batch_size, output_size])
         self.assertListEqual(list(weights.size()), [batch_size, seq_len])
 
 

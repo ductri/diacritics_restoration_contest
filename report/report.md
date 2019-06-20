@@ -50,3 +50,13 @@ INFO:root:Current best score: 0.9621806538241117 recorded at step 210000
 
 ```
 
+
+- Stop container: diacritics_19-06-14_19_03_47
+```
+------------------ 	Evaluation	------------------
+INFO:root:Number of batchs: 157
+INFO:root:New best score: 0.8941512289477335
+INFO:root:Saved model at /source/main/train/output//saved_models/Seq2SeqFeedingAttn/2019-06-14T17:04:06/220000.pt
+INFO:root:Current best score: 0.8941512289477335 recorded at step 220000
+
+```

@@ -133,7 +133,6 @@ def process_line(line):
     utf8_line = utf8_line.strip('\n')
 
     no_tone_line_pre = remove_tone_line(utf8_line)
-    import pdb; pdb.set_trace()
     normalized_line_pre = normalize_tone_line(utf8_line)
 
     no_tone_line_alphanumeric = re.sub('[^a-zA-Z\d]', ' ', repr(no_tone_line_pre))
