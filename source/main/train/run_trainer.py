@@ -1,8 +1,9 @@
 import logging
+
 import torch
 
 from data_for_train import dataset as my_dataset
-from model_def.seq2seq_feeding_attn import Seq2SeqFeedingAttn
+from model_def.seq2seq_feeding_attn_with_src.main_model import MainModel
 from utils import pytorch_utils
 from train.trainer import train
 
@@ -17,21 +18,20 @@ def target2_text(first_input, *params):
 
 if __name__ == '__main__':
     logging.basicConfig(level=logging.INFO)
-    BATCH_SIZE = 32
+    BATCH_SIZE = 64
     NUM_EPOCHS = 100
-    NUM_WORKERS = 1
+    NUM_WORKERS = 2
     PRINT_EVERY = 100
     PREDICT_EVERY = 5000
     EVAL_EVERY = 10000
-    PRE_TRAINED_MODEL = '/source/main/train/output//saved_models/Seq2SeqFeedingAttn/2019-06-13T11:50:26/80000.pt'
+    PRE_TRAINED_MODEL = ''
 
     my_dataset.bootstrap()
     train_loader = my_dataset.get_dl_train(batch_size=BATCH_SIZE, size=None)
     eval_loader = my_dataset.get_dl_eval(batch_size=BATCH_SIZE, size=None)
-    logging.info('There will be %s steps for training', NUM_EPOCHS * len(train_loader))
-    model = Seq2SeqFeedingAttn(src_vocab_size=len(my_dataset.voc_src.index2word),
-                               tgt_vocab_size=len(my_dataset.voc_tgt.index2word),
-                               start_idx=2, end_idx=3)
+    logging.info('There will be %s steps for training, %s steps/epochs', NUM_EPOCHS * len(train_loader), len(train_loader))
+    model = MainModel(enc_embedding_weight=my_dataset.voc_src.get_embedding_weights(),
+                      dec_embedding_weight=my_dataset.voc_tgt.get_embedding_weights(), start_idx=20399)
     model.train()
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     model.to(device)

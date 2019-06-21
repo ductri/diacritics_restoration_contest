@@ -8,7 +8,7 @@ from utils import pytorch_utils
 
 class MainModel(nn.Module):
 
-    def __init__(self, enc_embedding_weight, dec_embedding_weight, start_idx, end_idx):
+    def __init__(self, enc_embedding_weight, dec_embedding_weight, start_idx):
         super(MainModel, self).__init__()
         self.lr_rate = 1e-3
         self.max_length = 100

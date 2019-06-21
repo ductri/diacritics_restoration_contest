@@ -60,3 +60,13 @@ INFO:root:Saved model at /source/main/train/output//saved_models/Seq2SeqFeedingA
 INFO:root:Current best score: 0.8941512289477335 recorded at step 220000
 
 ```
+- Temporarily stop `diacritics_19-06-20_15_49_56`
+```buildoutcfg
+------------------      Evaluation      ------------------
+INFO:root:Number of batchs: 79
+INFO:root:New best score: 0.9152970683550201
+INFO:root:Saved model at /source/main/train/output//saved_models/MainModel/2019-06-20T13:50:12/40000.pt
+INFO:root:Current best score: 0.9152970683550201 recorded at step 40000
+
+
+```

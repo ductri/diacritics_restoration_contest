@@ -21,7 +21,7 @@ class TestMainModel(unittest.TestCase):
 
         inputs_idx = torch.randint(src_vocab_size, size=(batch_size, seq_len))
         model = MainModel(enc_embedding_weight=enc_embedding_weight, dec_embedding_weight=dec_embedding_weight,
-                          start_idx=1, end_idx=2)
+                          start_idx=1)
         output = model(inputs_idx)
         self.assertEqual(output.size(), (batch_size, seq_len))
 
@@ -38,7 +38,7 @@ class TestMainModel(unittest.TestCase):
         dec_embedding_weight = np.random.rand(tgt_vocab_size, 10)
 
         model = MainModel(enc_embedding_weight=enc_embedding_weight, dec_embedding_weight=dec_embedding_weight,
-                          start_idx=5, end_idx=end_idx)
+                          start_idx=5)
         model.train()
         model.to(self.device)
         model.lr_rate = 1e-3
