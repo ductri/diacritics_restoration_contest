@@ -70,3 +70,39 @@ INFO:root:Current best score: 0.9152970683550201 recorded at step 40000
 
 
 ```
+
+- Stop `diacritics_19-06-20_15_49_56` overfitting
+INFO:root:Current best score: 0.9384526835146263 recorded at step 150000
+
+- Temporarily stop `diacritics_19-06-24_18_37_33`
++ `2019-06-24T16:37:50`
++ 
+```buildoutcfg
+------------------      Evaluation      ------------------
+INFO:root:Number of batchs: 79
+INFO:root:New best score: 0.9685444852313875
+INFO:root:Saved model at /source/main/train/output//saved_models/Simple/2019-06-24T16:37:50/80000.pt
+INFO:root:Current best score: 0.9685444852313875 recorded at step 80000
+```
+- Temporarily stop `diacritics_19-06-25_11_05_29`
++ 
++
+```buildoutcfg
+------------------      Evaluation      ------------------
+INFO:root:Number of batchs: 79
+INFO:root:New best score: 0.97243390156583
+INFO:root:Saved model at /source/main/train/output//saved_models/Simple/2019-06-25T09:06:11/210000.pt
+INFO:root:Current best score: 0.97243390156583 recorded at step 210000
+
+```
+
+- Stop `diacritics_19-06-26_06_02_00` because of over-fitting
+NFO:root:Current best score: 0.973669634538235 recorded at step 360000
+
+
+```yaml
+------------------      Evaluation      ------------------
+INFO:root:Number of batchs: 79
+INFO:root:Current best score: 0.9751268797402585 recorded at step 730000
+Simple/2019-06-27T16:33:36
+```
