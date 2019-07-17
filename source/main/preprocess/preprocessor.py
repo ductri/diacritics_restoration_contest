@@ -1,11 +1,17 @@
-import logging
-import argparse
-import pandas as pd
-
 from nltk.tokenize import word_tokenize
-import numpy as np
+import re
 
-from preprocess import preprocess_supp
+
+p1 = re.compile('[0-9]+')
+p2 = re.compile('\n+')
+
+
+def __replace_digit(doc):
+    return p1.sub('__d__', doc)
+
+
+def __replace_breakline(doc):
+    return p2.sub(' ', doc)
 
 
 def __split_by_dot_tokenize(doc):
@@ -24,29 +30,18 @@ def __cut_off(doc, length):
     return ' '.join(doc.split()[:length])
 
 
-def preprocess_text(docs):
-    docs = [__split_by_dot_tokenize(doc) for doc in docs]
-    docs = [__split_by_comma_tokenize(doc) for doc in docs]
-    docs = [__tokenize_single_doc(doc) for doc in docs]
-
-    return docs
-
-
-def infer_preprocess(docs, max_length):
-    docs = preprocess_text(docs)
-    docs = [__cut_off(doc, max_length) for doc in docs]
-    return docs
+def infer_preprocess(doc):
+    doc = __replace_breakline(doc)
+    doc = __split_by_dot_tokenize(doc)
+    doc = __split_by_comma_tokenize(doc)
+    doc = __tokenize_single_doc(doc)
+    doc = doc.lower()
+    doc = __replace_digit(doc)
+    return doc
 
 
-def train_preprocess(docs, max_length):
-    docs = preprocess_supp.remove_line_break(docs)
-    docs = infer_preprocess(docs, max_length)
+def train_preprocess(doc, max_length):
+    doc = infer_preprocess(doc)
+    doc = __cut_off(doc, max_length)
 
-    logging.info('Pre-processing done')
-    logging.info('-- Some samples: ')
-    random_index = list(range(len(docs)))
-    np.random.shuffle(random_index)
-    for i in random_index[:15]:
-        logging.info('-- -- %s', docs[i])
-
-    return docs
+    return doc

@@ -5,8 +5,10 @@ import pandas as pd
 
 from torch.utils.data import Dataset, DataLoader
 import torch
-
 from naruto_skills.new_voc import Voc
+
+from model_def.transformer import constants
+
 
 voc_src = None
 voc_tgt = None
@@ -26,8 +28,8 @@ class Docs(Dataset):
         size = size or data.shape[0]
         data = data.sample(size)
 
-        self.src = list(data['src'].map(str.lower))
-        self.tgt = list(data['tgt'].map(str.lower))
+        self.src = list(data['src'])
+        self.tgt = list(data['tgt'])
 
     def __len__(self):
         return len(self.tgt)
@@ -46,10 +48,10 @@ class Docs(Dataset):
 def bootstrap():
     global voc_src
     global voc_tgt
-    path_src = ROOT + 'main/vocab/output/new_voc_src.pkl'
+    path_src = constants.voc_src_path
     voc_src = Voc.load(path_src)
 
-    path_tgt = ROOT + 'main/vocab/output/new_voc_tgt.pkl'
+    path_tgt = constants.voc_tgt_path
     voc_tgt = Voc.load(path_tgt)
 
     logging.info('Vocab for source from file %s contains %s tokens', path_src, len(voc_src.index2word))

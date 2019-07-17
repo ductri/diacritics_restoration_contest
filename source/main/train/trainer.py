@@ -6,9 +6,9 @@ logging.basicConfig(level=logging.INFO)
 
 import numpy as np
 import torch
+from naruto_skills.training_checker import TrainingChecker
 
 from naruto_skills.dl_logging import DLLoggingHandler, DLTBHandler, DLLogger
-from utils.training_checker import TrainingChecker
 from model_def.baseline import Baseline
 from model_def.simple_but_huge import SimpleButHuge
 

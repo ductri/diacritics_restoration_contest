@@ -17,8 +17,6 @@ pip install -q --upgrade '/content/gdrive/My Drive/my_google_colab/libs/naruto_s
 pip install -q tensorflow==1.13.1
 pip install -q tensorboard
 pip install -q tensorboardX
-pip install -q pygtrie
-pip install -q tldextract
 python -m nltk.downloader 'punkt'
 
 echo "Mapping to /source ..."

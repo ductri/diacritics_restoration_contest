@@ -1,10 +1,10 @@
 import logging
 
 import torch
-from torch import nn
 
 from data_for_train import dataset as my_dataset
-from model_def.cnn.simple import Simple
+from model_def.transformer.model import Model
+from model_def.transformer.training_function import TrainingFunction
 from utils import pytorch_utils
 from train.trainer import train
 
@@ -23,19 +23,16 @@ if __name__ == '__main__':
     NUM_EPOCHS = 20
     NUM_WORKERS = 2
     PRINT_EVERY = 100
-    PREDICT_EVERY = 5000
-    EVAL_EVERY = 10000
-    PRE_TRAINED_MODEL = '/source/main/train/output//saved_models/Simple/2019-06-27T16:33:36/730000.pt'
+    PREDICT_EVERY = 500
+    EVAL_EVERY = 700
+    PRE_TRAINED_MODEL = ''
 
     my_dataset.bootstrap()
     train_loader = my_dataset.get_dl_train(batch_size=BATCH_SIZE, size=None)
     eval_loader = my_dataset.get_dl_eval(batch_size=BATCH_SIZE, size=None)
     logging.info('There will be %s steps for training, %s steps/epochs', NUM_EPOCHS * len(train_loader), len(train_loader))
-    model = Simple(enc_embedding=nn.Embedding(len(my_dataset.voc_src.index2word), 300),
-                   dec_embedding=nn.Embedding(len(my_dataset.voc_tgt.index2word), 300))
-    model.train()
+    model = TrainingFunction(Model())
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    # device = torch.device('cpu')
     model.to(device)
     logging.info('Model architecture: \n%s', model)
     logging.info('Total trainable parameters: %s', pytorch_utils.count_parameters(model))
@@ -47,7 +44,7 @@ if __name__ == '__main__':
         model.load_state_dict(checkpoint['model_state_dict'])
         # model.optimizer.load_state_dict(checkpoint['optimizer'])
         init_step = checkpoint.get('step', 0)
-
+        logging.info('Optimizer: %s', model.optimizer)
         logging.info('Load pre-trained model from %s successfully', PRE_TRAINED_MODEL)
 
     train(model, train_loader, eval_loader, dir_checkpoint='/source/main/train/output/', device=device,

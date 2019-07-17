@@ -106,3 +106,14 @@ INFO:root:Number of batchs: 79
 INFO:root:Current best score: 0.9751268797402585 recorded at step 730000
 Simple/2019-06-27T16:33:36
 ```
+
+- Stop `diacritics_19-07-01_08_43_03`
+```yaml
+2019-07-02T06:04:04.036735001Z ------------------       Evaluation      ------------------
+2019-07-02T06:04:04.036739742Z INFO:root:Number of batchs: 79
+2019-07-02T06:04:04.037234929Z INFO:root:Current best score: 0.9763880471105716 recorded at step 870000
+
+```
+Simple/2019-07-01T06:43:19
+
+

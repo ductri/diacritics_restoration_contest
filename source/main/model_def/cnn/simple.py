@@ -126,5 +126,5 @@ class Simple(nn.Module):
             self.xent = nn.CrossEntropyLoss(reduction='none')
         if self.optimizer is None:
             # self.optimizer = optim.Adam(self.parameters(), lr=1e-3)
-            self.optimizer = optim.SGD(self.parameters(), lr=1e-3, momentum=0.9)
+            self.optimizer = optim.SGD(self.parameters(), lr=1.0, momentum=0.0, weight_decay=0.99)
         super().train(mode)
