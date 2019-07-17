@@ -9,8 +9,6 @@ import torch
 from naruto_skills.training_checker import TrainingChecker
 
 from naruto_skills.dl_logging import DLLoggingHandler, DLTBHandler, DLLogger
-from model_def.baseline import Baseline
-from model_def.simple_but_huge import SimpleButHuge
 
 
 def cal_word_acc(prediction, target, seq_len):
@@ -56,13 +54,13 @@ def cal_sen_acc(prediction, target, seq_len):
     return acc
 
 
-def train(model, train_loader, eval_loader, dir_checkpoint, device, num_epoch=10, print_every=1000, predict_every=500,
-          eval_every=500, input_transform=None, output_transform=None, init_step=0):
+def train(training_model, train_loader, eval_loader, dir_checkpoint, device, num_epoch=10, print_every=1000, predict_every=500,
+          eval_every=500, input_transform=None, output_transform=None, init_step=0, exp_id='x'):
     if input_transform is None:
         input_transform = lambda *x: x
     if output_transform is None:
         output_transform = lambda *x: x
-
+    model = training_model.model
     def predict_and_print_sample(*inputs):
         sample_size = 5
         input_tensors = [input_tensor[:sample_size] for input_tensor in inputs]
@@ -82,10 +80,11 @@ def train(model, train_loader, eval_loader, dir_checkpoint, device, num_epoch=10
             logging.info('Target:\t%s', tgt)
             logging.info('------')
 
-    training_checker = TrainingChecker(model, root_dir=dir_checkpoint+'/saved_models', init_score=0)
+    training_checker = TrainingChecker(training_model, root_dir=dir_checkpoint + '/saved_models' + '/%s/%s'
+                                                                % (model.__class__.__name__, exp_id), init_score=0)
     my_logger = DLLogger()
     my_logger.add_handler(DLLoggingHandler())
-    my_logger.add_handler(DLTBHandler(dir_checkpoint+'/logging/%s/%s' % (model.__class__.__name__, training_checker.exp_id)))
+    my_logger.add_handler(DLTBHandler(dir_checkpoint +'/logging/%s/%s' % (model.__class__.__name__, exp_id)))
 
     e_w_a_tracking = []
     e_s_a_tracking = []
@@ -103,13 +102,14 @@ def train(model, train_loader, eval_loader, dir_checkpoint, device, num_epoch=10
     eval_duration_tag = 'eval/step_duration'
 
     step = init_step
-    model.to(device)
+    training_model.to(device)
+
     logging.info('----------------------- START TRAINING -----------------------')
     for _ in range(num_epoch):
         for inputs in train_loader:
             inputs = [i.to(device) for i in inputs]
             start = time.time()
-            t_loss_tracking.append(model.train_batch(*inputs))
+            t_loss_tracking.append(training_model.train_batch(inputs))
             step += 1
             with torch.no_grad():
                 if step % print_every == 0 or step == 1:
@@ -117,6 +117,7 @@ def train(model, train_loader, eval_loader, dir_checkpoint, device, num_epoch=10
                     prediction_numpy = model(inputs[0]).cpu().numpy()
                     target_numpy = inputs[1].cpu().numpy()
                     seq_len_numpy = inputs[2].cpu().numpy()
+                    import pdb; pdb.set_trace()
                     w_acc = cal_word_acc(prediction_numpy, target_numpy, seq_len_numpy)
                     s_acc = cal_sen_acc(prediction_numpy, target_numpy, seq_len_numpy)
 

@@ -4,11 +4,15 @@ import torch
 from utils import pytorch_utils
 
 
-class TrainingFunction:
+class TrainingFunction(nn.Module):
     def __init__(self, model):
+        super(TrainingFunction, self).__init__()
         self.model = model
         self.xent = nn.CrossEntropyLoss(reduction='none')
         self.optimizer = optim.Adam(model.parameters(), lr=3e-4)
+
+    def forward(self, *input):
+        return self.model(*input)
 
     def get_loss(self, inputs):
         src, tgt, seq_len = inputs

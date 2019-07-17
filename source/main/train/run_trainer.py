@@ -30,12 +30,13 @@ if __name__ == '__main__':
     my_dataset.bootstrap()
     train_loader = my_dataset.get_dl_train(batch_size=BATCH_SIZE, size=None)
     eval_loader = my_dataset.get_dl_eval(batch_size=BATCH_SIZE, size=None)
-    logging.info('There will be %s steps for training, %s steps/epochs', NUM_EPOCHS * len(train_loader), len(train_loader))
-    model = TrainingFunction(Model())
+    logging.info('There will be %s steps for training, %s steps/epoch', NUM_EPOCHS * len(train_loader), len(train_loader))
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    model = Model()
     model.to(device)
     logging.info('Model architecture: \n%s', model)
     logging.info('Total trainable parameters: %s', pytorch_utils.count_parameters(model))
+    model = TrainingFunction(model)
 
     init_step = 0
     # Restore model
@@ -49,4 +50,4 @@ if __name__ == '__main__':
 
     train(model, train_loader, eval_loader, dir_checkpoint='/source/main/train/output/', device=device,
           num_epoch=NUM_EPOCHS, print_every=PRINT_EVERY, predict_every=PREDICT_EVERY, eval_every=EVAL_EVERY,
-          input_transform=input2_text, output_transform=target2_text, init_step=init_step)
+          input_transform=input2_text, output_transform=target2_text, init_step=init_step, exp_id='1.0')

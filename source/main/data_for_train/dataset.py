@@ -27,7 +27,8 @@ class Docs(Dataset):
 
         size = size or data.shape[0]
         data = data.sample(size)
-
+        tmp = (data['src'].map(lambda x: len(x.split())) > MAX_LENGTH).sum()
+        assert tmp == 0, tmp
         self.src = list(data['src'])
         self.tgt = list(data['tgt'])
 
