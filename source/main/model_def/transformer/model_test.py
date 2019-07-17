@@ -12,7 +12,7 @@ class TestModel(unittest.TestCase):
         batch = 2
         seq_len = 10
         word_input = torch.randint(0, 100, size=(batch, seq_len))
-        output = model(word_input)
+        output = model.get_logits(word_input)
         self.assertListEqual(list(output.size()), [2, 10, 54806])
 
 

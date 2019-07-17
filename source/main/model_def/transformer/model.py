@@ -1,4 +1,5 @@
 from torch import nn
+import torch
 from naruto_skills.new_voc import Voc
 
 from model_def.transformer.layer import Layer
@@ -20,11 +21,13 @@ class Model(nn.Module):
         self.stacked_layers = nn.Sequential(*[Layer(AttentionMultipleHead(8, size)) for _ in range(6)])
         self.output_projection = nn.Linear(size, len(dataset.voc_tgt.index2word))
 
-    def forward(self, word_input, *input):
+    def get_logits(self, word_input):
         """
 
-        :param word_input: (batch, seq_len)
-        :param input:
+        :param
+        word_input: (batch, seq_len)
+        :param
+        input:
         :return:
         """
         # (batch, seq_len, size)
@@ -33,3 +36,13 @@ class Model(nn.Module):
         temp = self.stacked_layers(temp)
         output = self.output_projection(temp)
         return output
+
+    def forward(self, word_input, *input):
+        """
+
+        :param word_input:
+        :param input:
+        :return:
+        """
+        logits = self.get_logits(word_input)
+        return torch.argmax(logits, dim=2)

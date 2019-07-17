@@ -20,7 +20,7 @@ class TrainingFunction(nn.Module):
         assert max_length >= torch.max(seq_len).int().item()
 
         # shape == (batch, max_len, vocab_size)
-        predict = self.model(src)
+        predict = self.model.get_logits(src)
         # shape == (batch, vocab_size, max_len)
         predict = predict.permute(0, 2, 1)
         loss = self.xent(predict, tgt)

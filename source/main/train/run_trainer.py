@@ -19,12 +19,12 @@ def target2_text(first_input, *params):
 
 if __name__ == '__main__':
     logging.basicConfig(level=logging.INFO)
-    BATCH_SIZE = 64
+    BATCH_SIZE = 32
     NUM_EPOCHS = 20
     NUM_WORKERS = 2
     PRINT_EVERY = 100
-    PREDICT_EVERY = 500
-    EVAL_EVERY = 700
+    PREDICT_EVERY = 5000
+    EVAL_EVERY = 5000
     PRE_TRAINED_MODEL = ''
 
     my_dataset.bootstrap()

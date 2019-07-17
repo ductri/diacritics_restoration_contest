@@ -117,7 +117,6 @@ def train(training_model, train_loader, eval_loader, dir_checkpoint, device, num
                     prediction_numpy = model(inputs[0]).cpu().numpy()
                     target_numpy = inputs[1].cpu().numpy()
                     seq_len_numpy = inputs[2].cpu().numpy()
-                    import pdb; pdb.set_trace()
                     w_acc = cal_word_acc(prediction_numpy, target_numpy, seq_len_numpy)
                     s_acc = cal_sen_acc(prediction_numpy, target_numpy, seq_len_numpy)
 
