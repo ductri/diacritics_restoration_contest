@@ -3,7 +3,7 @@ import logging
 import torch
 
 from data_for_train import dataset as my_dataset
-from model_def.transformer.model import Model
+from model_def.transformer.model_2 import Model
 from model_def.transformer.training_function import TrainingFunction
 from utils import pytorch_utils
 from train.trainer import train
@@ -23,8 +23,8 @@ if __name__ == '__main__':
     NUM_EPOCHS = 20
     NUM_WORKERS = 2
     PRINT_EVERY = 100
-    PREDICT_EVERY = 5000
-    EVAL_EVERY = 5000
+    PREDICT_EVERY = 50000
+    EVAL_EVERY = 20000
     PRE_TRAINED_MODEL = ''
 
     my_dataset.bootstrap()
@@ -34,7 +34,7 @@ if __name__ == '__main__':
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     model = Model()
     model.to(device)
-    logging.info('Model architecture: \n%s', model)
+    # logging.info('Model architecture: \n%s', model)
     logging.info('Total trainable parameters: %s', pytorch_utils.count_parameters(model))
     model = TrainingFunction(model)
 
@@ -43,11 +43,11 @@ if __name__ == '__main__':
     if PRE_TRAINED_MODEL != '':
         checkpoint = torch.load(PRE_TRAINED_MODEL, map_location=device)
         model.load_state_dict(checkpoint['model_state_dict'])
-        # model.optimizer.load_state_dict(checkpoint['optimizer'])
+        model.optimizer.load_state_dict(checkpoint['optimizer'])
         init_step = checkpoint.get('step', 0)
         logging.info('Optimizer: %s', model.optimizer)
         logging.info('Load pre-trained model from %s successfully', PRE_TRAINED_MODEL)
 
     train(model, train_loader, eval_loader, dir_checkpoint='/source/main/train/output/', device=device,
           num_epoch=NUM_EPOCHS, print_every=PRINT_EVERY, predict_every=PREDICT_EVERY, eval_every=EVAL_EVERY,
-          input_transform=input2_text, output_transform=target2_text, init_step=init_step, exp_id='1.0')
+          input_transform=input2_text, output_transform=target2_text, init_step=init_step, exp_id='2.0')

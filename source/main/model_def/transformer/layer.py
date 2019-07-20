@@ -21,4 +21,6 @@ class Layer(nn.Module):
         temp = self.dropout(temp)
         temp = temp + word_input
         temp = F.layer_norm(temp, temp.size()[1:])
+        temp = self.fc(temp)
+        temp = F.relu(temp)
         return temp

@@ -117,3 +117,33 @@ Simple/2019-06-27T16:33:36
 Simple/2019-07-01T06:43:19
 
 
+# Training Transformer
+- Container: `diacritics_19-07-17_11_07_35`
+- 
+```yaml
+------------------      Evaluation      ------------------
+INFO:root:Number of batchs: 157
+INFO:root:Current best score is 0.9706060603762169 at /source/main/train/output//saved_models/Model/1.0/185000.pt
+INFO:root:Current best score: 0.9706060603762169 recorded at step 185000
+
+```
+- Dataset: `dataset.py`
+- Log: `Model/1.0`
+
+Temporarily stop to train with augmentation data
+
+Temporarily stop `diacritics_19-07-18_17_26_33` (13h)
+2019-07-19T04:14:09.509074488Z ------------------       Evaluation      ------------------
+2019-07-19T04:14:09.509080059Z INFO:root:Number of batchs: 157
+2019-07-19T04:14:09.510004842Z INFO:root:Current best score is 0.9717414296294907 at /source/main/train/output//saved_models/Model/1.1/225000.pt
+2019-07-19T04:14:09.510025346Z INFO:root:Current best score: 0.9717414296294907 recorded at step 225000
+
+- Stop `diacritics_19-07-19_14_09_16`
+Because loss of train are not reducing anymore
+```yaml
+------------------      Evaluation      ------------------
+INFO:root:Number of batchs: 157
+INFO:root:Current best score is 0.9738843542930108 at /source/main/train/output//saved_models/Model/1.2/360000.pt
+INFO:root:Current best score: 0.9738843542930108 recorded at step 360000
+Loss ~= 0.10
+```
