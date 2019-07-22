@@ -18,7 +18,7 @@ class Model(nn.Module):
         self.embedding = nn.Embedding(num_embeddings=len(dataset.voc_src.index2word), embedding_dim=size)
         self.positional_embedding = PositionalEncoding(self.embedding.embedding_dim, 0.1, 5000)
 
-        self.stacked_layers = nn.Sequential(*[Layer(AttentionMultipleHead(10, size)) for _ in range(8)])
+        self.stacked_layers = nn.Sequential(*[Layer(AttentionMultipleHead(6, size)) for _ in range(8)])
         self.output_projection = nn.Linear(size, len(dataset.voc_tgt.index2word))
 
     def get_logits(self, word_input):

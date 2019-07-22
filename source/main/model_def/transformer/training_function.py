@@ -9,7 +9,7 @@ class TrainingFunction(nn.Module):
         super(TrainingFunction, self).__init__()
         self.model = model
         self.xent = nn.CrossEntropyLoss(reduction='none')
-        self.optimizer = optim.Adam(model.parameters(), lr=3e-4)
+        self.optimizer = optim.Adam(model.parameters(), lr=1e-4)
 
     def forward(self, *input):
         return self.model(*input)
