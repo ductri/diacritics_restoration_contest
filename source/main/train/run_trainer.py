@@ -25,7 +25,7 @@ if __name__ == '__main__':
     PRINT_EVERY = 100
     PREDICT_EVERY = 50000
     EVAL_EVERY = 10000
-    PRE_TRAINED_MODEL = '/source/main/train/output/saved_models/Model/2.1/60000.pt'
+    PRE_TRAINED_MODEL = '/source/main/train/output/saved_models/Model/2.1/70000.pt'
 
     my_dataset.bootstrap()
     train_loader = my_dataset.get_dl_train(batch_size=BATCH_SIZE, size=None)

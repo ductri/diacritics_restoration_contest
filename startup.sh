@@ -18,7 +18,7 @@ wget http://213.246.38.101:2609/source/main/vocab/output/voc_src_1.0 \
     -O source/main/vocab/output/voc_src_1.0
 
 echo "Downloading checkpoint"
-mkdir -p /source/main/train/output/saved_models/Model/2.1/
+mkdir -p source/main/train/output/saved_models/Model/2.1/
 wget http://213.246.38.101:2609/source/main/train/output/saved_models/Model/2.1/60000.pt \
-    -O /source/main/train/output/saved_models/Model/2.1/60000.pt
+    -O source/main/train/output/saved_models/Model/2.1/60000.pt
 
