@@ -147,3 +147,20 @@ INFO:root:Current best score is 0.9738843542930108 at /source/main/train/output/
 INFO:root:Current best score: 0.9738843542930108 recorded at step 360000
 Loss ~= 0.10
 ```
+
+- Stop `diacritics_19-07-21_11_08_24`
+```yaml
+2019-07-22T04:17:59.424228296Z INFO:root:Step: 69800     train/loss_mean: 0.1659        train/loss_std: 0.0381  train/word_acc: 0.9590  train/sen_acc: 0.5625   train/ste
+p_duration: 1.2682
+2019-07-22T04:19:37.612888371Z INFO:root:Step: 69900     train/loss_mean: 0.1598        train/loss_std: 0.0432  train/word_acc: 0.9591  train/sen_acc: 0.5000   train/ste
+p_duration: 1.2648
+2019-07-22T04:20:22.921598012Z INFO:root:
+2019-07-22T04:20:22.921633979Z 
+2019-07-22T04:20:22.921638183Z ------------------       Evaluation      ------------------
+2019-07-22T04:20:22.921641679Z INFO:root:Number of batchs: 157
+2019-07-22T04:20:24.016912692Z INFO:root:New best score: 0.9634271110929116
+2019-07-22T04:20:24.016945560Z INFO:root:Saved model at /source/main/train/output//saved_models/Model/2.1/70000.pt
+2019-07-22T04:20:24.016963977Z INFO:root:Current best score: 0.9634271110929116 recorded at step 70000
+2019-07-22T04:20:24.068900000Z INFO:root:Sample 1 
+
+```

@@ -50,4 +50,4 @@ if __name__ == '__main__':
 
     train(model, train_loader, eval_loader, dir_checkpoint='/source/main/train/output/', device=device,
           num_epoch=NUM_EPOCHS, print_every=PRINT_EVERY, predict_every=PREDICT_EVERY, eval_every=EVAL_EVERY,
-          input_transform=input2_text, output_transform=target2_text, init_step=init_step, exp_id='2.1')
+          input_transform=input2_text, output_transform=target2_text, init_step=init_step, exp_id='2.2')
