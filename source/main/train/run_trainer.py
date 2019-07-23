@@ -38,6 +38,10 @@ if __name__ == '__main__':
     logging.info('Total trainable parameters: %s', pytorch_utils.count_parameters(model))
     model = TrainingFunction(model)
 
+    logging.info('Inspect learning rate before loading weights')
+    for param_group in model.optimizer.param_groups:
+        logging.info(param_group['lr'])
+
     init_step = 0
     # Restore model
     if PRE_TRAINED_MODEL != '':
@@ -46,6 +50,10 @@ if __name__ == '__main__':
         model.optimizer.load_state_dict(checkpoint['optimizer'])
         init_step = checkpoint.get('step', 0)
         logging.info('Optimizer: %s', model.optimizer)
+        logging.info('Inspect learning rate after loading weights')
+        for param_group in model.optimizer.param_groups:
+            logging.info(param_group['lr'])
+
         logging.info('Load pre-trained model from %s successfully', PRE_TRAINED_MODEL)
 
     train(model, train_loader, eval_loader, dir_checkpoint='/source/main/train/output/', device=device,
