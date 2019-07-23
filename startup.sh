@@ -1,6 +1,5 @@
 echo "Clone ..."
 git clone https://github.com/ductri/diacritics_restoration_contest.git
-
 cd diacritics_restoration_contest
 
 echo "Downloading data"
@@ -22,4 +21,4 @@ mkdir -p source/main/train/output/saved_models/Model/2.1/
 wget http://213.246.38.101:2609/source/main/train/output/saved_models/Model/2.1/60000.pt \
     -O source/main/train/output/saved_models/Model/2.1/60000.pt
 
-ln -s ./source /source
+ln -s "`pwd`/source/" /source
