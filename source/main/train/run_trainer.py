@@ -4,7 +4,7 @@ import torch
 
 from data_for_train import dataset as my_dataset
 from model_def.transformer.model_2 import Model
-from model_def.transformer.training_function import TrainingFunction
+from model_def.transformer.training_function_3 import TrainingFunction
 from utils import pytorch_utils
 from train.trainer import train
 
@@ -25,7 +25,7 @@ if __name__ == '__main__':
     PRINT_EVERY = 100
     PREDICT_EVERY = 50000
     EVAL_EVERY = 10000
-    PRE_TRAINED_MODEL = '/source/main/train/output/saved_models/Model/2.2/260000.pt'
+    PRE_TRAINED_MODEL = '/source/main/train/output/saved_models/Model/2.4/410000.pt'
 
     my_dataset.bootstrap()
     train_loader = my_dataset.get_dl_train(batch_size=BATCH_SIZE, size=None)
@@ -38,24 +38,18 @@ if __name__ == '__main__':
     logging.info('Total trainable parameters: %s', pytorch_utils.count_parameters(model))
     model = TrainingFunction(model)
 
-    logging.info('Inspect learning rate before loading weights')
-    for param_group in model.optimizer.param_groups:
-        logging.info(param_group['lr'])
-
     init_step = 0
     # Restore model
     if PRE_TRAINED_MODEL != '':
         checkpoint = torch.load(PRE_TRAINED_MODEL, map_location=device)
         model.load_state_dict(checkpoint['model_state_dict'])
-        model.optimizer.load_state_dict(checkpoint['optimizer'])
+        # model.optimizer.load_state_dict(checkpoint['optimizer'])
         init_step = checkpoint.get('step', 0)
         logging.info('Optimizer: %s', model.optimizer)
-        logging.info('Inspect learning rate after loading weights')
-        for param_group in model.optimizer.param_groups:
-            logging.info(param_group['lr'])
+        logging.info('Inspect learning rate after loading weights', model.scheduler.get_lr())
 
         logging.info('Load pre-trained model from %s successfully', PRE_TRAINED_MODEL)
 
     train(model, train_loader, eval_loader, dir_checkpoint='/source/main/train/output/', device=device,
           num_epoch=NUM_EPOCHS, print_every=PRINT_EVERY, predict_every=PREDICT_EVERY, eval_every=EVAL_EVERY,
-          input_transform=input2_text, output_transform=target2_text, init_step=init_step, exp_id='2.3')
+          input_transform=input2_text, output_transform=target2_text, init_step=init_step, exp_id='2.5')

@@ -20,5 +20,3 @@ echo "Downloading checkpoint"
 mkdir -p source/main/train/output/saved_models/Model/2.2/
 wget http://213.246.38.101:2609/source/main/train/output/saved_models/Model/2.2/260000.pt \
     -O source/main/train/output/saved_models/Model/2.2/260000.pt
-
-mv "`pwd`/source/*" /source

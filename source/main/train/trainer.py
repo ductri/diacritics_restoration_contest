@@ -1,4 +1,3 @@
-import os
 import time
 import logging
 
@@ -8,7 +7,7 @@ import numpy as np
 import torch
 from naruto_skills.training_checker import TrainingChecker
 
-from naruto_skills.dl_logging import DLLoggingHandler, DLTBHandler, DLLogger
+from naruto_skills.dl_logging import DLLoggingHandler, DLTBHandler, get_logger_instance
 
 
 def cal_word_acc(prediction, target, seq_len):
@@ -82,9 +81,9 @@ def train(training_model, train_loader, eval_loader, dir_checkpoint, device, num
 
     training_checker = TrainingChecker(training_model, root_dir=dir_checkpoint + '/saved_models' + '/%s/%s'
                                                                 % (model.__class__.__name__, exp_id), init_score=0)
-    my_logger = DLLogger()
+    my_logger = get_logger_instance('root')
     my_logger.add_handler(DLLoggingHandler())
-    my_logger.add_handler(DLTBHandler(dir_checkpoint +'/logging/%s/%s' % (model.__class__.__name__, exp_id)))
+    my_logger.add_handler(DLTBHandler(dir_checkpoint + '/logging/%s/%s' % (model.__class__.__name__, exp_id)))
 
     e_w_a_tracking = []
     e_s_a_tracking = []
@@ -94,6 +93,7 @@ def train(training_model, train_loader, eval_loader, dir_checkpoint, device, num
     t_loss_std_tag = 'train/loss_std'
     t_w_a_tag = 'train/word_acc'
     t_s_a_tag = 'train/sen_acc'
+    lr_tag = 'lr'
     e_w_a_mean_tag = 'eval/word_acc'
     e_s_a_mean_tag = 'eval/sen_acc'
     e_w_a_std_tag = 'eval/word_acc_std'
@@ -124,6 +124,7 @@ def train(training_model, train_loader, eval_loader, dir_checkpoint, device, num
                     my_logger.add_scalar(t_loss_std_tag, np.std(t_loss_tracking), step)
                     my_logger.add_scalar(t_w_a_tag, w_acc, step)
                     my_logger.add_scalar(t_s_a_tag, s_acc, step)
+                    my_logger.add_scalar(lr_tag, training_model.scheduler.get_lr()[0], step)
                     my_logger.add_scalar(train_duration_tag, time.time() - start, step)
                     t_loss_tracking.clear()
 
